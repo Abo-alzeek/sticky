@@ -263,13 +263,13 @@ void Options::draw(sf::RenderWindow & whichWindow)
 Create::Create() {
 	this->chosenLevel = -1;
 
-	std::string current_directory = std::filesystem::current_path();
+	std::string current_directory = std::filesystem::current_path().string();
     std::string path = current_directory + "/res/Levels";
 
     for (const auto & entry : std::filesystem::directory_iterator(path)) {
-		std::string name = entry.path();
+		std::string name = entry.path().string();
 		name = name.substr((int)path.size() + 1, (int)name.size() - (int)path.size() - 5);
-		levels.push_back( {name, entry.path()} );
+		levels.push_back( {name, entry.path().string()} );
 	}
 
 	levelName.setPosition(sf::Vector2f(WIDTH - 350, HEIGHT / 2 + 175));
