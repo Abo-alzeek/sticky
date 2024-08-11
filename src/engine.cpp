@@ -3,45 +3,17 @@
 Engine::Engine(std::string level_path) {
     this->level = Level(level_path);
 
-    std::cout << "SETTING MAP" << std::endl;
-
     for(int i = 0;i < (int)level.Map.size();i++) {
         for(int j = 0;j < (int)level.Map[i].size();j++) {      
             std::cout << " -> " << i << " " << j << "\n";      
             if(level.Map[i][j] == 0) continue;
 
-            std::cout << "ONE\n";
-    
             auto e = m_entities.addEntity(&tileTag); 
-            std::cout << "ONE\n";
             e->cCollision = std::make_shared<CCollision>(sf::Vector2f(j * 64.0, i * 64.0), 64.0, 64.0);
-            std::cout << "ONE\n";
             e->cTextrue = std::make_shared<CTexture>( m_resources.sprites[ level.Map[i][j] ]);
-            std::cout << "ONE\n";
             e->cTextrue->sprite.setPosition(j*64, i*64);
-            std::cout << "ONE\n";
         }
     }
-
-    std::cout << "GOOD MAP" << std::endl;
-    // // making stickman
-    // e = m_entities.addEntity(&stickmanTag);
-    // e->cAnimation = std::make_shared<CAnimation>();
-    
-    // e->cTransform = std::make_shared<CTransform>();
-    // e->cTransform->pos = sf::Vector2f(level.spawinigPoints.back().first * 64.0, level.spawinigPoints.back().second * 64.0);
-    
-    // e->cTextrue = std::make_shared<CTexture>( m_resources.textures[1] );
-    // e->cTextrue->sprite.setTexture(e->cTextrue->texture);
-    // e->cTextrue->sprite.setTextureRect(sf::IntRect(0, 0, 40, 113));
-    // e->cTextrue->sprite.setPosition(e->cTransform->pos);
-    // e->cTextrue->sprite.setOrigin(e->cTextrue->sprite.getGlobalBounds().width/2.0, e->cTextrue->sprite.getGlobalBounds().height/2.0);
-    
-    // e->cInput = std::make_shared<CInput>();
-    
-    // e->cCollision = std::make_shared<CCollision>(e->cTransform->pos, e->cTextrue->sprite.getGlobalBounds().width, e->cTextrue->sprite.getGlobalBounds().height);
-    // e->cCollision->boundingBox.setOrigin(e->cCollision->boundingBox.getGlobalBounds().width/2.0, e->cCollision->boundingBox.getGlobalBounds().height/2.0);
-
 
     // skeletal creation
     auto e = m_entities.addEntity(&skeletalTag);
@@ -68,12 +40,9 @@ void Engine::run(sf::RenderWindow &window) {
         m_entities.update();
 
         handleInput(window);
-        std::cout << "ONE\n";
         update();
         // checkCollisions();        
         render(window);
-
-        std::cout << "ONE\n";
 
         for(auto e : m_entities.getEntities()) {
             if(e->cState != NULL) {
