@@ -6,6 +6,11 @@
 struct Point {
     float x, y;
 
+    Point(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+    
     Point() {
         ;
     }
@@ -91,7 +96,7 @@ public:
 };
 
 enum Animations {
-    STICKMAN_IDL, STICKMAN_RUN
+    STICKMAN_IDLE, STICKMAN_RUN
 };
 
 class CCollision {
@@ -114,29 +119,9 @@ class CTexture {
     ~CTexture();
 };
 
-class CAnimation {
-    public:
-    sf::Clock timer;
-    int currentAnimation;
-    int currentFrame, framesCount, textureIdx;
-    int frameX, frameY, frameW, frameH;
-    float frameTL;
-    int invert = 1;
-
-
-    CAnimation();
-    ~CAnimation();
-    sf::Sprite playAnimation(std::vector<sf::Texture> &);
-    void setAnimation(anime, int);
-};
 
 class CInput {
 public:
-    bool lastFrameRight = false;
-    bool lastFrameLeft = false;
-    bool movingRight = false;
-    bool movingLeft = false;
-
     int idx = 1;
     int angle = 0;
 
@@ -146,19 +131,52 @@ public:
     ~CInput();
 };
 
+class CState {
+public:
+    int state = 0;
+    int lastFrameState = 0;
+
+    
+
+    CState();
+    ~CState();
+};
+
 class CBones {
 public:
     std::vector< Bone > bones;
+    std::vector< std::pair<int, float> > subMoves;
+    std::vector< std::vector<std::pair<int, float>> > moves;
+    int remaining = 0, idx = 0;
 
     CBones();
     ~CBones();
 
+    // void handleMoves();
+    // void setMovementVector(std::vector< std::vector< std::pair<int, float> > >&);
+    // void applyMove();
     void update(int);
     void printState();
     void moveBone(int, Point);
     void rotateBone(int, float);
+    void setBoneAngle(int, float);
     void addBone(Point, Point, int, int, float, int);
     void makeHumanSkeleton(float, float, float, float, float, float, float);
+};
+
+class CAnimation {
+    public:
+    sf::Clock timer;
+    int currentFrame, framesCount;
+    float frameTL;
+    int currentAnimation;
+    int invert = 1;
+    std::vector< std::vector<std::pair<int, float>> > moves;
+
+    CAnimation();
+    ~CAnimation();
+    void playAnimation(std::vector< std::vector<std::pair<int, float>> > &, CBones &);
+    void setAnimation(anime, int);
 };
 
 #endif
