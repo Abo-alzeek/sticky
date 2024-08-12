@@ -6,6 +6,11 @@
 struct Point {
     float x, y;
 
+    Point(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+    
     Point() {
         ;
     }
@@ -79,6 +84,11 @@ struct Bone {
     }
 };
 
+
+enum stickParts {
+    WAIST, BACK, RIGHT_ARM, RIGHT_HAND, LEFT_ARM, LEFT_HAND, RIGHT_LEG, RIGHT_FOOT, LEFT_LEG, LEFT_FOOT, NECK, HEAD
+};
+
 class CTransform {
 public:
 	sf::Vector2f pos = {0, 0};
@@ -91,7 +101,7 @@ public:
 };
 
 enum Animations {
-    STICKMAN_IDL, STICKMAN_RUN
+    STICKMAN_IDLE, STICKMAN_RUN
 };
 
 class CCollision {
@@ -114,29 +124,9 @@ class CTexture {
     ~CTexture();
 };
 
-class CAnimation {
-    public:
-    sf::Clock timer;
-    int currentAnimation;
-    int currentFrame, framesCount, textureIdx;
-    int frameX, frameY, frameW, frameH;
-    float frameTL;
-    int invert = 1;
-
-
-    CAnimation();
-    ~CAnimation();
-    sf::Sprite playAnimation(std::vector<sf::Texture> &);
-    void setAnimation(anime, int);
-};
 
 class CInput {
 public:
-    bool lastFrameRight = false;
-    bool lastFrameLeft = false;
-    bool movingRight = false;
-    bool movingLeft = false;
-
     int idx = 1;
     int angle = 0;
 
@@ -146,19 +136,53 @@ public:
     ~CInput();
 };
 
+class CState {
+public:
+    int state = 0;
+    int lastFrameState = 0;
+
+    
+
+    CState();
+    ~CState();
+};
+
 class CBones {
 public:
     std::vector< Bone > bones;
+    std::vector< std::pair<int, float> > subMoves;
+    std::vector< std::vector<std::pair<int, float>> > moves;
+    int remaining = 0, idx = 0;
 
     CBones();
     ~CBones();
 
+    // void handleMoves();
+    // void setMovementVector(std::vector< std::vector< std::pair<int, float> > >&);
+    // void applyMove();
     void update(int);
+    void setBonePosition(int, Point);
     void printState();
     void moveBone(int, Point);
     void rotateBone(int, float);
+    void setBoneAngle(int, float);
     void addBone(Point, Point, int, int, float, int);
     void makeHumanSkeleton(float, float, float, float, float, float, float);
+};
+
+class CAnimation {
+    public:
+    float frameTL;
+    int invert = 1;
+    sf::Clock timer;
+    int currentFrame, framesCount;
+    int currentAnimation, forceFrameOut;
+    std::vector< std::vector<std::pair<int, float>> > moves;
+
+    CAnimation();
+    ~CAnimation();
+    void setAnimation(anime, int);
+    void playAnimation(std::vector< std::vector<std::pair<int, float>> > &, CBones &, std::shared_ptr<CState> &);
 };
 
 #endif

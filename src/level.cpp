@@ -27,7 +27,7 @@ Level::Level(std::string path) {
     for(int i = 0;i < spawn_num;i++) {
         int x, y;
         file >> x >> y;
-        spawinigPoints.push_back( {x, y} );
+        spawinigPoints.push_back( {x * 64, y * 64} );
     }
 
     file.close();

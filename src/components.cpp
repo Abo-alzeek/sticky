@@ -62,16 +62,10 @@ CInput::~CInput() {
 }
 
 CAnimation::CAnimation() {
-    currentAnimation = STICKMAN_IDL;
-
     currentFrame = 0;
     framesCount = 10;
-    textureIdx = 1;
-
-    frameX = frameY = 0;
-    frameW = 40;
-    frameH = 113;
     frameTL = 0.12;
+    currentAnimation = 0;
 
     timer.restart();
 }
@@ -80,15 +74,19 @@ CAnimation::~CAnimation() {
     ;
 }
 
-sf::Sprite CAnimation::playAnimation(std::vector<sf::Texture> &textures) {
-    if( timer.getElapsedTime().asSeconds() >= frameTL ) {
+void CAnimation::playAnimation(std::vector< std::vector<std::pair<int, float>> > &subMove, CBones &bones, std::shared_ptr<CState> &e) {
+    if( timer.getElapsedTime().asSeconds() >= this->frameTL ) {
         currentFrame = (currentFrame + 1) % framesCount;
         timer.restart();
+
+        if(!currentFrame && this->forceFrameOut > 0) this->forceFrameOut--;
+        if(!this->forceFrameOut) return;
     }
 
-    sf::Sprite s(textures[textureIdx], sf::IntRect(frameX + frameW * currentFrame + (int)(0.5 * currentFrame), frameY, frameW, frameH));
-    s.setScale(invert, 1);
-    return s;
+    for(int i = 0;i < (int)subMove[this->currentAnimation].size();i++) {
+        bones.setBoneAngle( subMove[this->currentFrame][i].first, subMove[this->currentFrame][i].second );
+    }
+
 }
 
 void CAnimation::setAnimation(anime a, int in) {
@@ -98,24 +96,38 @@ void CAnimation::setAnimation(anime a, int in) {
     
     // set frames count
     this->framesCount = a.framesCount;
-    
-    // set textureIdx
-    this->textureIdx = a.textureIdx;
-    
-    // set frame(x, y, w, h)
-    this->frameX = a.frameX;
-    this->frameY = a.frameY;
-    this->frameW = a.frameW;
-    this->frameH = a.frameH;
-    
+
+    // set force frame out
+    this->forceFrameOut = a.forceStopAfter;
+
     // set frame time
     this->frameTL = a.frameTL;
-    
+    this->moves = a.movement;
+
+
     // set enum
-    this->currentAnimation = a.animation;
+    this->currentAnimation = a.idx;
 
     // set invert
-    if(in) this->invert = in;
+    if(in) this->invert = in / abs(in);
+
+    if(this->invert < 0) {
+        for(auto &m : moves) {
+            for(auto &sm : m) {
+                sm.second = 180.0 - sm.second;
+            }
+        }
+    }
+
+
+}
+
+CState::CState() {
+    ;
+}
+
+CState::~CState() {
+    ;
 }
 
 CBones::CBones() {
@@ -156,7 +168,7 @@ void CBones::addBone(Point p1, Point p2, int p, int side, float length, int isHe
     this->bones.push_back(b);
 }
 
-void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float hand = 27.0, float leg = 35.0, float foot = 30.0, float neck = 10.0, float head = 10.0) {
+void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float hand = 37.0, float leg = 35.0, float foot = 40.0, float neck = 25.0, float head = 20.0) {
     Point p1, p2, no;
     p1.x = 600;
     p1.y = 300;
@@ -166,14 +178,14 @@ void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float ha
     no.y = -1;
 
     this->addBone(p1, p2, -1, -1, backBone, 0);
-    this->addBone(no, no, 0, 1, arm, 0);
-    this->addBone(no, no, 0, 1, arm, 0);
-    this->addBone(no, no, 1, 2, hand, 0);
-    this->addBone(no, no, 2, 2, hand, 0);
-    this->addBone(no, no, 0, 2, leg, 0);
-    this->addBone(no, no, 0, 2, leg, 0);
-    this->addBone(no, no, 5, 2, foot, 0);
-    this->addBone(no, no, 6, 2, foot, 0);
+    this->addBone(no, no, 0, 1, arm, 0); // right 
+    this->addBone(no, no, 0, 1, arm, 0); // left
+    this->addBone(no, no, 1, 2, hand, 0); // right 
+    this->addBone(no, no, 2, 2, hand, 0); // left
+    this->addBone(no, no, 0, 2, leg, 0); // right leg
+    this->addBone(no, no, 0, 2, leg, 0); // left leg
+    this->addBone(no, no, 5, 2, foot, 0); // right foot
+    this->addBone(no, no, 6, 2, foot, 0); // left foot
     this->addBone(no, no, 0, 1, neck, 0);
     this->rotateBone(9, 180);
     this->addBone(no, no, 9, 2, head, 1);
@@ -185,6 +197,23 @@ void CBones::moveBone(int id, Point v) {
 
     this->bones[id].p2.x += v.x;
     this->bones[id].p2.y += v.y;
+
+    this->bones[id].update();
+    this->update(id);
+}
+
+void CBones::setBonePosition(int id, Point v) {
+    float x = this->bones[id].p1.x;
+    float y = this->bones[id].p1.y;
+
+    x = v.x - x;
+    y = v.y - y;
+
+    this->bones[id].p1.x += x;
+    this->bones[id].p1.y += y;
+
+    this->bones[id].p2.x += x;
+    this->bones[id].p2.y += y;
 
     this->bones[id].update();
     this->update(id);
@@ -219,6 +248,15 @@ void CBones::rotateBone(int id, float deg) {
     this->update(id);
 }
 
+void CBones::setBoneAngle(int id, float deg) {
+    // std::cout << "ROTATING BONE " << id << " ANGLE EQUALS: " << deg << std::endl;
+    float x = this->bones[id].p2.x - this->bones[id].p1.x;
+    float y = (this->bones[id].p2.y - this->bones[id].p1.y) * -1;
+
+    float newAngle = (PI / 180.0 * deg - atan2(y, x));
+    this->rotateBone(id, newAngle * 180.0 / PI);
+}
+
 void CBones::update(int u) {
     bones[u].update();
 
@@ -250,3 +288,30 @@ void CBones::printState() {
     }
     std::cout << "-----" << std::endl;
 }
+
+// void CBones::handleMoves() {
+//     if(this->remaining) {
+//         applyMove();
+//         this->remaining--;
+//     }
+
+//     idx = (idx + 1) % (int)this->moves.size();
+//     for(int i = 0;i < (int)this->subMoves.size();i++) {
+//         float x = this->bones[ subMoves[i].second ].p2.x - this->bones[subMoves[i].second].p1.x;
+//         float y = (this->bones[subMoves[i].second].p2.y - this->bones[subMoves[i].second].p1.y) * -1;
+//         subMoves[i].second = (moves[this->idx][i].second - atan2(y, x) * (int)this->moves.size() / FPS);
+//     }
+//     this->remaining = (FPS / (int)this->moves.size());
+// }
+
+// void CBones::setMovementVector(std::vector< std::vector< std::pair<int, float> > > &vec) {
+//     this->moves = vec;
+//     this->remaining = (FPS / (int)this->moves.size());
+//     this->subMoves.resize( (int)this->moves.size() );
+// }
+
+// void CBones::applyMove() {
+//     for(auto m : subMoves) {
+//         this->rotateBone(m.first, m.second);
+//     }
+// }

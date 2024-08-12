@@ -82,11 +82,10 @@ std::string Resources::getStickmanPart() {
 //---------------------------------------------------------------------------------------
 
 void Resources::loadTextures() {
-    std::cout << " -> LOADING TEXTURES..." << std::endl;
     sf::Texture temp;
 
     // tile sheet
-    if(!temp.loadFromFile(getTilesTexture())) std::cout << "TILE SHEET NOT FOUND!!" << std::endl;
+    if(!temp.loadFromFile(getTilesTexture())) {std::cout << "TILE SHEET NOT FOUND!!" << std::endl;}
     else textures.push_back(temp);
 
     // stickman sheet
@@ -108,22 +107,11 @@ void Resources::loadTextures() {
     // white sky 2
     if(!temp.loadFromFile(getSkyWallpaper2() )) std::cout << "No backgroun1 texture!!" << std::endl;
     else textures.push_back(temp);
-
-    // stickman body
-    if(!temp.loadFromFile(getStickmanBody() )) std::cout << "NO STICKMAN BODY!!" << std::endl;
-    else textures.push_back(temp);
-
-    // stickman part
-    if(!temp.loadFromFile(getStickmanPart() )) std::cout << "NO STICKMAN PART!!" << std::endl;
-    else textures.push_back(temp);
-
-    std::cout << " -- > texture: " << temp.getSize().x << " " << temp.getSize().y << std::endl;
 }
 
 //---------------------------------------------------------------------------------------
 
 void Resources::setSprites() {
-    std::cout << " -> SETTING SPRITES.." << std::endl;
     sf::Sprite semp;
     semp.setTexture(textures[0]);
 
@@ -184,55 +172,99 @@ void Resources::setSprites() {
     semp.setTexture(textures[5]);
     this->backgrounds.push_back(semp);
     this->backgrounds.back().setScale( (float)WIDTH / backgrounds.back().getGlobalBounds().width, (float)HEIGHT / backgrounds.back().getGlobalBounds().height);
-
-    // stickman body
-    sf::Sprite semp2;
-    semp2.setTexture(textures[6]);
-    semp = semp2;
-    this->sprites.push_back(semp);
-    std::cout << "SPRITES SIZE: " << this->sprites.size() << std::endl;
-
-    // stickman part
-    sf::Sprite semp3;
-    semp3.setTexture(textures[7]);
-    semp = semp3;
-    this->sprites.push_back(semp);
 }
 
 //---------------------------------------------------------------------------------------
 
 void Resources::getAnimations() {
+    int fc, fsa;
+    float ftl;
+
     anime a;
     std::fstream file;
 
-    int an, fc, fx, fy, fw, fh, t;
-    float ftl;
+    std::vector< std::pair<int, float> > temp;
+    std::vector< std::vector< std::pair<int, float> > > movement;
 
-    file.open(animationsDirectory + "stickman_idl.txt");
-    file >> an >> fc >> ftl >> fx >> fy >> fw >> fh >> t;
-    a.animation = an;
+    file.open(animationsDirectory + "bones_stickman_idle.txt");
+    file >> fc >> ftl >> fsa;
     a.framesCount = fc;
     a.frameTL = ftl;
-    a.frameX = fx;
-    a.frameY = fy;
-    a.frameW = fw;
-    a.frameH = fh;
-    a.textureIdx = t;
+    a.forceStopAfter = fsa;
+    a.idx = 0;
+    
+    for(int i = 0;i < a.framesCount;i++) {
+        int n; 
+        file >> n;
+        for(int j = 0;j < n;j++) {
+            temp.emplace_back();
+            file >> temp.back().first >> temp.back().second;
+        }
+        movement.push_back(temp);
+        temp.clear();
+    }
+
+    a.movement = movement;
     animations.push_back(a);
 
     file.close();
 
-    file.open(animationsDirectory + "stickman_run.txt");
-    file >> an >> fc >> ftl >> fx >> fy >> fw >> fh >> t;
-    a.animation = an;
+
+
+    temp.clear();
+    movement.clear();
+
+    file.open(animationsDirectory + "bones_stickman_run.txt");
+    file >> fc >> ftl >> fsa;
     a.framesCount = fc;
     a.frameTL = ftl;
-    a.frameX = fx;
-    a.frameY = fy;
-    a.frameW = fw;
-    a.frameH = fh;
-    a.textureIdx = t;
+    a.forceStopAfter = fsa;
+    a.idx = 1;
+
+    for(int i = 0;i < a.framesCount;i++) {
+        int n; 
+        file >> n;
+        for(int j = 0;j < n;j++) {
+            temp.emplace_back();
+            file >> temp.back().first >> temp.back().second;
+            temp.back().second *= -1;
+        }
+        movement.push_back(temp);
+        temp.clear();
+    }
+
+    a.movement = movement;
     animations.push_back(a);
 
     file.close();
+
+    temp.clear();
+    movement.clear();
+
+    file.open(animationsDirectory + "bones_stickman_punch.txt");
+    file >> fc >> ftl >> fsa;
+    a.framesCount = fc;
+    a.frameTL = ftl;
+    a.forceStopAfter = fsa;
+    a.idx = 2;
+
+    for(int i = 0;i < a.framesCount;i++) {
+        int n; 
+        file >> n;
+        for(int j = 0;j < n;j++) {
+            temp.emplace_back();
+            file >> temp.back().first >> temp.back().second;
+            temp.back().second *= -1;
+        }
+        movement.push_back(temp);
+        temp.clear();
+    }
+
+    a.movement = movement;
+    animations.push_back(a);
+
+    file.close();
+
+    temp.clear();
+    movement.clear();
 }

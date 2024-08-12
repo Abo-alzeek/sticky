@@ -13,7 +13,15 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "detail": "Generated task by VS Code."
+            "detail": "Generated task by VS Code.",
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/c"]
+                },
+                "cwd": "${workspaceFolder}",
+                "env": {}
+            }
         }
     ]
 }

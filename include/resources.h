@@ -11,10 +11,11 @@ enum Backgrounds {
 };
 
 struct anime {
-    int currentFrame, framesCount, textureIdx;
-    int frameX, frameY, frameW, frameH;
+    int framesCount;
     float frameTL;
-    int animation;
+    int forceStopAfter;
+    int idx;
+    std::vector< std::vector<std::pair<int, float>> > movement;
 };
 
 class Resources
@@ -42,6 +43,8 @@ public:
     std::vector<sf::Sprite>  sprites;
     std::vector<sf::Sprite>  backgrounds;
     std::vector<anime>       animations;
+
+    std::vector< std::vector< std::vector<std::pair<int, float>> > >animations2;
 
     void loadTextures();
     void setSprites();
