@@ -13,6 +13,7 @@ enum Backgrounds {
 struct anime {
     int framesCount;
     float frameTL;
+    int forceStopAfter;
     int idx;
     std::vector< std::vector<std::pair<int, float>> > movement;
 };
@@ -48,7 +49,6 @@ public:
     void loadTextures();
     void setSprites();
     void getAnimations();
-    void getAnimations2();
 };
 
 #endif

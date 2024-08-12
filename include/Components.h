@@ -84,6 +84,11 @@ struct Bone {
     }
 };
 
+
+enum stickParts {
+    WAIST, BACK, RIGHT_ARM, RIGHT_HAND, LEFT_ARM, LEFT_HAND, RIGHT_LEG, RIGHT_FOOT, LEFT_LEG, LEFT_FOOT, NECK, HEAD
+};
+
 class CTransform {
 public:
 	sf::Vector2f pos = {0, 0};
@@ -156,6 +161,7 @@ public:
     // void setMovementVector(std::vector< std::vector< std::pair<int, float> > >&);
     // void applyMove();
     void update(int);
+    void setBonePosition(int, Point);
     void printState();
     void moveBone(int, Point);
     void rotateBone(int, float);
@@ -166,17 +172,17 @@ public:
 
 class CAnimation {
     public:
+    float frameTL;
+    int invert = 1;
     sf::Clock timer;
     int currentFrame, framesCount;
-    float frameTL;
-    int currentAnimation;
-    int invert = 1;
+    int currentAnimation, forceFrameOut;
     std::vector< std::vector<std::pair<int, float>> > moves;
 
     CAnimation();
     ~CAnimation();
-    void playAnimation(std::vector< std::vector<std::pair<int, float>> > &, CBones &);
     void setAnimation(anime, int);
+    void playAnimation(std::vector< std::vector<std::pair<int, float>> > &, CBones &, std::shared_ptr<CState> &);
 };
 
 #endif

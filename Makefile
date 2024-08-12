@@ -2,8 +2,8 @@ LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 SANATIZER = -fsanitize=address 
 CPPVERSION = -std=c++17 ${SANATIZER}
 
-output: main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o
-	g++ ${CPPVERSION} main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o -o output ${LIBS}
+output: main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o
+	g++ ${CPPVERSION} main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o -o output ${LIBS}
 
 main.o: main.cpp
 	g++ ${CPPVERSION} -g -Wall -c main.cpp
@@ -34,6 +34,9 @@ Entity.o: src/Entity.cpp include/Entity.h
 
 components.o: src/components.cpp include/Components.h
 	g++ ${CPPVERSION} -g -Wall -c src/components.cpp
+
+listener.o: src/listener.cpp include/listener.h
+	g++ ${CPPVERSION} -g -Wall -c src/listener.cpp
 
 clean:
 	rm *.o output

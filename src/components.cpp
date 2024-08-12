@@ -74,10 +74,13 @@ CAnimation::~CAnimation() {
     ;
 }
 
-void CAnimation::playAnimation(std::vector< std::vector<std::pair<int, float>> > &subMove, CBones &bones) {
+void CAnimation::playAnimation(std::vector< std::vector<std::pair<int, float>> > &subMove, CBones &bones, std::shared_ptr<CState> &e) {
     if( timer.getElapsedTime().asSeconds() >= this->frameTL ) {
         currentFrame = (currentFrame + 1) % framesCount;
         timer.restart();
+
+        if(!currentFrame && this->forceFrameOut > 0) this->forceFrameOut--;
+        if(!this->forceFrameOut) return;
     }
 
     for(int i = 0;i < (int)subMove[this->currentAnimation].size();i++) {
@@ -94,6 +97,9 @@ void CAnimation::setAnimation(anime a, int in) {
     // set frames count
     this->framesCount = a.framesCount;
 
+    // set force frame out
+    this->forceFrameOut = a.forceStopAfter;
+
     // set frame time
     this->frameTL = a.frameTL;
     this->moves = a.movement;
@@ -103,7 +109,7 @@ void CAnimation::setAnimation(anime a, int in) {
     this->currentAnimation = a.idx;
 
     // set invert
-    if(in) this->invert = in;
+    if(in) this->invert = in / abs(in);
 
     if(this->invert < 0) {
         for(auto &m : moves) {
@@ -112,6 +118,7 @@ void CAnimation::setAnimation(anime a, int in) {
             }
         }
     }
+
 
 }
 
@@ -161,7 +168,7 @@ void CBones::addBone(Point p1, Point p2, int p, int side, float length, int isHe
     this->bones.push_back(b);
 }
 
-void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float hand = 27.0, float leg = 35.0, float foot = 30.0, float neck = 10.0, float head = 10.0) {
+void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float hand = 37.0, float leg = 35.0, float foot = 40.0, float neck = 25.0, float head = 20.0) {
     Point p1, p2, no;
     p1.x = 600;
     p1.y = 300;
@@ -190,6 +197,23 @@ void CBones::moveBone(int id, Point v) {
 
     this->bones[id].p2.x += v.x;
     this->bones[id].p2.y += v.y;
+
+    this->bones[id].update();
+    this->update(id);
+}
+
+void CBones::setBonePosition(int id, Point v) {
+    float x = this->bones[id].p1.x;
+    float y = this->bones[id].p1.y;
+
+    x = v.x - x;
+    y = v.y - y;
+
+    this->bones[id].p1.x += x;
+    this->bones[id].p1.y += y;
+
+    this->bones[id].p2.x += x;
+    this->bones[id].p2.y += y;
 
     this->bones[id].update();
     this->update(id);

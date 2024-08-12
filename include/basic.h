@@ -11,7 +11,13 @@
 #include <filesystem>
 #include <sstream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/Audio.hpp>
 #include <memory>
+#include <functional>
+
 
 #include "resources.h"
 #include "game.h"
@@ -23,6 +29,7 @@
 #include "menu.h"
 #include "Level.h"
 #include "engine.h"
+#include "listener.h"
 
 #define FPS 60
 #define HEIGHT 768
