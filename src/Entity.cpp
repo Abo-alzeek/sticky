@@ -1,9 +1,10 @@
 #include "../include/basic.h"
 
 Entity::Entity() {
+	// std::cout << "ENTITIY CREATED\n";
 	cInput = NULL;
 	cTextrue = NULL;
-	cCollision = NULL;
+	cCollision.clear();
 	cAnimation = NULL;
 	cTransform = NULL;
 	// zob = NULL;
@@ -12,7 +13,7 @@ Entity::Entity() {
 Entity::~Entity() {
 	cInput = NULL;
 	cTextrue = NULL;
-	cCollision = NULL;
+	cCollision.clear();
 	cAnimation = NULL;
 	cTransform = NULL;
 	// zob = NULL;

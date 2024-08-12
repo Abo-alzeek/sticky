@@ -3,23 +3,6 @@
 
 #include "basic.h"
 
-struct Point {
-    float x, y;
-
-    Point(float x, float y) {
-        this->x = x;
-        this->y = y;
-    }
-    
-    Point() {
-        ;
-    }
-
-    ~Point() {
-        ;
-    }
-};
-
 struct Bone {
 
     Bone() {
@@ -29,7 +12,7 @@ struct Bone {
         ;
     }
 
-    Point p1, p2;
+    sf::Vector2f p1, p2;
     int side = 0;
     int parent = 0;
     float length = 0;
@@ -85,8 +68,8 @@ struct Bone {
 };
 
 
-enum stickParts {
-    WAIST, BACK, RIGHT_ARM, RIGHT_HAND, LEFT_ARM, LEFT_HAND, RIGHT_LEG, RIGHT_FOOT, LEFT_LEG, LEFT_FOOT, NECK, HEAD
+enum STICKPARTS {
+    WAIST, BACK, RIGHT_ARM, LEFT_ARM, RIGHT_HAND, LEFT_HAND, RIGHT_LEG, LEFT_LEG, RIGHT_FOOT, LEFT_FOOT, NECK, HEAD
 };
 
 class CTransform {
@@ -161,13 +144,13 @@ public:
     // void setMovementVector(std::vector< std::vector< std::pair<int, float> > >&);
     // void applyMove();
     void update(int);
-    void setBonePosition(int, Point);
+    void setBonePosition(int, sf::Vector2f);
     void printState();
-    void moveBone(int, Point);
+    void moveBone(int, sf::Vector2f);
     void rotateBone(int, float);
     void setBoneAngle(int, float);
-    void addBone(Point, Point, int, int, float, int);
-    void makeHumanSkeleton(float, float, float, float, float, float, float);
+    void addBone(sf::Vector2f, sf::Vector2f, int, int, float, int);
+    void makeHumanSkeleton(float, float, float, float, float, float, float, float);
 };
 
 class CAnimation {

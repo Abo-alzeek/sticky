@@ -140,7 +140,7 @@ CBones::~CBones() {
     ;
 }
 
-void CBones::addBone(Point p1, Point p2, int p, int side, float length, int isHead) {
+void CBones::addBone(sf::Vector2f p1, sf::Vector2f p2, int p, int side, float length, int isHead) {
     Bone b;
 
     if(p > -1) {
@@ -168,41 +168,40 @@ void CBones::addBone(Point p1, Point p2, int p, int side, float length, int isHe
     this->bones.push_back(b);
 }
 
-void CBones::makeHumanSkeleton(float backBone = 70.0, float arm = 35.0, float hand = 37.0, float leg = 35.0, float foot = 40.0, float neck = 25.0, float head = 20.0) {
-    Point p1, p2, no;
+void CBones::makeHumanSkeleton(float waist = 25.0, float backBone = 45.0, float arm = 35.0, float hand = 37.0, float leg = 35.0, float foot = 40.0, float neck = 25.0, float head = 20.0) {
+    sf::Vector2f p1, p2, no;
     p1.x = 600;
     p1.y = 300;
     p2.x = p1.x;
-    p2.y = p1.y + backBone;
+    p2.y = p1.y + waist;
     no.x = -1;
     no.y = -1;
 
-    this->addBone(p1, p2, -1, -1, backBone, 0);
-    this->addBone(no, no, 0, 1, arm, 0); // right 
-    this->addBone(no, no, 0, 1, arm, 0); // left
-    this->addBone(no, no, 1, 2, hand, 0); // right 
-    this->addBone(no, no, 2, 2, hand, 0); // left
-    this->addBone(no, no, 0, 2, leg, 0); // right leg
-    this->addBone(no, no, 0, 2, leg, 0); // left leg
-    this->addBone(no, no, 5, 2, foot, 0); // right foot
-    this->addBone(no, no, 6, 2, foot, 0); // left foot
-    this->addBone(no, no, 0, 1, neck, 0);
-    this->rotateBone(9, 180);
-    this->addBone(no, no, 9, 2, head, 1);
+    this->addBone(p1, p2, -1, -1, waist, 0);
+    this->addBone(no, no, STICKPARTS::WAIST, 1, backBone, 0);
+    this->addBone(no, no, STICKPARTS::BACK, 2, arm, 0); // right 
+    this->addBone(no, no, STICKPARTS::BACK, 2, arm, 0); // left
+    this->addBone(no, no, STICKPARTS::RIGHT_ARM, 2, hand, 0); // right 
+    this->addBone(no, no, STICKPARTS::LEFT_ARM, 2, hand, 0); // left
+    this->addBone(no, no, STICKPARTS::WAIST, 2, leg, 0); // right leg
+    this->addBone(no, no, STICKPARTS::WAIST, 2, leg, 0); // left leg
+    this->addBone(no, no, STICKPARTS::RIGHT_LEG, 2, foot, 0); // right foot
+    this->addBone(no, no, STICKPARTS::LEFT_LEG, 2, foot, 0); // left foot
+    this->addBone(no, no, STICKPARTS::BACK, 2, neck, 0);
+    this->addBone(no, no, STICKPARTS::NECK, 2, head, 1);
+    this->rotateBone(STICKPARTS::NECK, 180);
+    this->rotateBone(STICKPARTS::BACK, 180);
 }
 
-void CBones::moveBone(int id, Point v) {
-    this->bones[id].p1.x += v.x;
-    this->bones[id].p1.y += v.y;
-
-    this->bones[id].p2.x += v.x;
-    this->bones[id].p2.y += v.y;
+void CBones::moveBone(int id, sf::Vector2f v) {
+    this->bones[id].p1 += v;
+    this->bones[id].p2 += v;
 
     this->bones[id].update();
     this->update(id);
 }
 
-void CBones::setBonePosition(int id, Point v) {
+void CBones::setBonePosition(int id, sf::Vector2f v) {
     float x = this->bones[id].p1.x;
     float y = this->bones[id].p1.y;
 
@@ -261,7 +260,7 @@ void CBones::update(int u) {
     bones[u].update();
 
     for(auto v : bones[u].children) {
-        Point move ;
+        sf::Vector2f move;
 
         if(bones[v].side == 1) {
             move.x = bones[u].p1.x - bones[v].p1.x;
@@ -288,30 +287,3 @@ void CBones::printState() {
     }
     std::cout << "-----" << std::endl;
 }
-
-// void CBones::handleMoves() {
-//     if(this->remaining) {
-//         applyMove();
-//         this->remaining--;
-//     }
-
-//     idx = (idx + 1) % (int)this->moves.size();
-//     for(int i = 0;i < (int)this->subMoves.size();i++) {
-//         float x = this->bones[ subMoves[i].second ].p2.x - this->bones[subMoves[i].second].p1.x;
-//         float y = (this->bones[subMoves[i].second].p2.y - this->bones[subMoves[i].second].p1.y) * -1;
-//         subMoves[i].second = (moves[this->idx][i].second - atan2(y, x) * (int)this->moves.size() / FPS);
-//     }
-//     this->remaining = (FPS / (int)this->moves.size());
-// }
-
-// void CBones::setMovementVector(std::vector< std::vector< std::pair<int, float> > > &vec) {
-//     this->moves = vec;
-//     this->remaining = (FPS / (int)this->moves.size());
-//     this->subMoves.resize( (int)this->moves.size() );
-// }
-
-// void CBones::applyMove() {
-//     for(auto m : subMoves) {
-//         this->rotateBone(m.first, m.second);
-//     }
-// }

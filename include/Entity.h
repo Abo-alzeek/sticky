@@ -12,13 +12,13 @@ public:
 	Entity();
 	~Entity();
 	Entity(const size_t id, const std::string *tag);
-	std::shared_ptr<CInput>          cInput = nullptr;
-	std::shared_ptr<CTexture>        cTextrue = nullptr;
-	std::shared_ptr<CCollision>  	 cCollision = nullptr;
-	std::shared_ptr<CAnimation>      cAnimation = nullptr;
-	std::shared_ptr<CTransform>      cTransform = nullptr;
-	std::shared_ptr<CBones>          cBones = nullptr;
-	std::shared_ptr<CState>          cState = nullptr;
+	std::shared_ptr<CInput>          			cInput = nullptr;
+	std::shared_ptr<CTexture>        			cTextrue = nullptr;
+	std::vector<std::shared_ptr<CCollision>>    cCollision;
+	std::shared_ptr<CAnimation>					cAnimation = nullptr;
+	std::shared_ptr<CTransform>					cTransform = nullptr;
+	std::shared_ptr<CBones>          			cBones = nullptr;
+	std::shared_ptr<CState>          			cState = nullptr;
 	
 	void destroy();
 	bool isActive() const;

@@ -199,6 +199,7 @@ void Resources::getAnimations() {
         for(int j = 0;j < n;j++) {
             temp.emplace_back();
             file >> temp.back().first >> temp.back().second;
+            // temp.back().second *= -1;
         }
         movement.push_back(temp);
         temp.clear();
@@ -227,7 +228,7 @@ void Resources::getAnimations() {
         for(int j = 0;j < n;j++) {
             temp.emplace_back();
             file >> temp.back().first >> temp.back().second;
-            temp.back().second *= -1;
+            // temp.back().second *= -1;
         }
         movement.push_back(temp);
         temp.clear();
@@ -254,7 +255,7 @@ void Resources::getAnimations() {
         for(int j = 0;j < n;j++) {
             temp.emplace_back();
             file >> temp.back().first >> temp.back().second;
-            temp.back().second *= -1;
+            // temp.back().second *= -1;
         }
         movement.push_back(temp);
         temp.clear();
