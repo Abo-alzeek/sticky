@@ -117,7 +117,7 @@ void Engine::run(sf::RenderWindow &window) {
 
         handleInput(window);
         update();
-        checkCollisions();
+        checkCollisions(window);
         render(window);
 
         for(auto e : m_entities.getEntities()) {
@@ -245,14 +245,14 @@ void Engine::handleInput(sf::RenderWindow &window) {
 
 void Engine::update() {
 
-    std::cout << "ONE\n";
+    std::cout << "UPDATE_1\n";
 
     // preUpdate
     for(auto e : m_entities.getEntities()) {
         if(e->cState != NULL && e->cState->toUpdate != e->cState->INF) e->cState->update();
     }
-    std::cout << "TWO\n";
 
+    std::cout << "UPDATE 4\n";
     // updating states
     for(auto e : m_entities.getEntities()) {
         if(e->cState != NULL) {
@@ -271,6 +271,8 @@ void Engine::update() {
         }
     }
 
+    std::cout << "UPDATE 3\n";
+
     // update movements
     for(auto e : m_entities.getEntities()) {
         if(e->cTransform != NULL) {
@@ -281,13 +283,15 @@ void Engine::update() {
         }
     }
 
+    std::cout << "UPDATE 5\n";
+
 
     // update animations
     for(auto e : m_entities.getEntities()) {
         if(e->cAnimation != NULL) {
+
             e->cAnimation->playAnimation(e->cAnimation->moves, *e->cBones, e->cState);
 
-            
             if(e->cAnimation->forceFrameOut == 0) {
                 std::cout << " TIME OUT!! " << e->cState->state << "\n";
                 if(abs(e->cState->state) == 4) e->cState->toUpdate = -e->cState->INF;
@@ -295,6 +299,8 @@ void Engine::update() {
             }
         }
     }
+
+    std::cout << "UPDATE 6\n";
 
     // check for dead stickman 
     for(auto e : m_entities.getEntities(skeletalTag)) {
@@ -305,6 +311,7 @@ void Engine::update() {
         }
     }
 
+    std::cout << "UPDATE_2\n";
     // update sounds
 }
 
@@ -323,14 +330,12 @@ bool checkPointRectangleCollision(sf::RectangleShape &rect, sf::Vector2f &p) {
 int checkScreenCollision(sf::RectangleShape &rect, sf::RenderWindow &window) {
     if(rect.getPosition().x <= rect.getGlobalBounds().width) return 1;
     if(rect.getPosition().y <= rect.getGlobalBounds().height) return 2;
-    if(rect.getPosition().x + rect.getGlobalBounds().width >= window.getSize().x)
-        return 3;
-    if(rect.getPosition().y + rect.getGlobalBounds().height >= window.getSize().y)
-        return 4;
+    if(rect.getPosition().x + rect.getGlobalBounds().width >= window.getSize().x) return 3;
+    if(rect.getPosition().y + rect.getGlobalBounds().height >= window.getSize().y) return 4;
     return 0;
 }
 
-void Engine::checkCollisions() {
+void Engine::checkCollisions(sf::RenderWindow &window) {
     // no collision between characters when no combat
 
 
@@ -380,16 +385,16 @@ void Engine::checkCollisions() {
 
     // collision between characters and the screen bounds
     for(auto stickman: m_entities.getEntities(skeletalTag)) {
-        if(checkScreenCollision(stickman->cCollision[1]->boundingBox, Game::getWindow()) == 1) {
+        if(checkScreenCollision(stickman->cCollision[1]->boundingBox, window) ){
             stickman->cTransform->pos.x = stickman->cCollision[1]->boundingBox.getGlobalBounds().width;
             this->moveAll(stickman, stickman->cTransform->pos);
         }
-        else if(checkScreenCollision(stickman->cCollision[1]->boundingBox, Game::getWindow()) == 3) {
-            stickman->cTransform->pos.x = Game::getWindow().getSize().x - stickman->cCollision[1]->boundingBox.getGlobalBounds().width;
+        else if(checkScreenCollision(stickman->cCollision[1]->boundingBox, window) ){
+            stickman->cTransform->pos.x = window.getSize().x - stickman->cCollision[1]->boundingBox.getGlobalBounds().width;
             this->moveAll(stickman, stickman->cTransform->pos);
         }
-        else if(checkScreenCollision(stickman->cCollision[2]->boundingBox, Game::getWindow()) == 4) {
-            stickman->cTransform->pos.y = Game::getWindow().getSize().y - stickman->cCollision[2]->boundingBox.getGlobalBounds().height;
+        else if(checkScreenCollision(stickman->cCollision[2]->boundingBox, window) ){
+            stickman->cTransform->pos.y = window.getSize().y - stickman->cCollision[2]->boundingBox.getGlobalBounds().height;
             this->moveAll(stickman, stickman->cTransform->pos);
         }
     }
@@ -440,5 +445,3 @@ void Engine::render(sf::RenderWindow &window) {
 /*
 
 */
-
-

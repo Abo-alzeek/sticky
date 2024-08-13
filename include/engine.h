@@ -29,7 +29,7 @@ public : Engine(std::string);
 	void createSkeletonBoundingBoxes(std::shared_ptr<Entity>);
 	void handleInput(sf::RenderWindow &);
 	void update();
-	void checkCollisions();
+	void checkCollisions(sf::RenderWindow &);
 	void render(sf::RenderWindow &);
 	void spawnStickman(bool, bool, bool, bool, bool, bool, bool, bool, int);
 

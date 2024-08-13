@@ -1,7 +1,7 @@
 #include "../include/game.h"
 
 //---------------------------------------------------------------------------------------
-sf::RenderWindow Game::window;
+// sf::RenderWindow Game::getWindow();
 Game::Game()
 {
 	window.create(sf::VideoMode(WIDTH, HEIGHT), "Stickman Game", sf::Style::Close);
@@ -22,7 +22,7 @@ Game::~Game()
 
 sf::RenderWindow & Game::getWindow()
 {
-	return Game::window;
+	return this->window;
 }
 
 //---------------------------------------------------------------------------------------
