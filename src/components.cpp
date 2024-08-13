@@ -83,17 +83,16 @@ void CAnimation::playAnimation(std::vector< std::vector<std::pair<int, float>> >
         if(!this->forceFrameOut) return;
     }
 
-    for(int i = 0;i < (int)subMove[this->currentAnimation].size();i++) {
+    for(int i = 0;i < (int)subMove[this->currentFrame].size();i++) {
         bones.setBoneAngle( subMove[this->currentFrame][i].first, subMove[this->currentFrame][i].second );
     }
-
 }
 
 void CAnimation::setAnimation(anime a, int in) {
     // set timer and currentframe to zero
     this->timer.restart();
     this->currentFrame = 0;
-    
+
     // set frames count
     this->framesCount = a.framesCount;
 
@@ -103,7 +102,6 @@ void CAnimation::setAnimation(anime a, int in) {
     // set frame time
     this->frameTL = a.frameTL;
     this->moves = a.movement;
-
 
     // set enum
     this->currentAnimation = a.idx;
@@ -128,6 +126,11 @@ CState::CState() {
 
 CState::~CState() {
     ;
+}
+
+void CState::update() {
+    this->state = this->toUpdate;
+    this->toUpdate = this->INF;
 }
 
 CBones::CBones() {
@@ -286,4 +289,39 @@ void CBones::printState() {
         std::cout << i << ": " << atan2(bones[i].p2.y - bones[i].p1.y, bones[i].p2.x - bones[i].p1.x) * 180.0 / PI << std::endl;
     }
     std::cout << "-----" << std::endl;
+}
+
+CHealth::CHealth() {
+    ;
+}
+
+CHealth::~CHealth() {
+    ;
+}
+
+CHealth::CHealth(int hp, sf::Vector2f v) {
+    this->HP = hp;
+
+    this->healthBar.setSize(sf::Vector2f(100, 10));
+    this->healthBar.setPosition(v);
+    this->healthBar.setOutlineThickness(2);
+    this->healthBar.setOutlineColor(sf::Color::Black);
+    this->healthBar.setFillColor(sf::Color::White);
+
+    this->health.setSize(sf::Vector2f(100 * (this->HP / 100.0), 10));
+    this->health.setFillColor(sf::Color::Red);
+    this->health.setPosition(v);
+}
+
+void CHealth::setBarsPosition(sf::Vector2f v) {
+    this->health.setPosition(v);
+    this->healthBar.setPosition(v);
+}
+
+void CHealth::updateHealth(int upd) {    
+    HP += upd;
+
+    if(HP < 0) HP = 0;
+
+    this->health.setSize(sf::Vector2f(100 * (this->HP / 100.0), 10));
 }

@@ -123,11 +123,12 @@ class CState {
 public:
     int state = 0;
     int lastFrameState = 0;
-
-    
+    const int INF = 2e9;
+    int toUpdate = INF;
 
     CState();
     ~CState();
+    void update();
 };
 
 class CBones {
@@ -166,6 +167,19 @@ class CAnimation {
     ~CAnimation();
     void setAnimation(anime, int);
     void playAnimation(std::vector< std::vector<std::pair<int, float>> > &, CBones &, std::shared_ptr<CState> &);
+};
+
+class CHealth {
+public:
+    int HP = 0;
+    sf::RectangleShape healthBar, health;
+
+    void updateHealth(int upd = -7);
+    void setBarsPosition(sf::Vector2f);
+
+    CHealth();
+    ~CHealth();
+    CHealth(int, sf::Vector2f);
 };
 
 #endif

@@ -7,6 +7,7 @@ Entity::Entity() {
 	cCollision.clear();
 	cAnimation = NULL;
 	cTransform = NULL;
+	cHealth = NULL;
 	// zob = NULL;
 }
 
@@ -16,6 +17,7 @@ Entity::~Entity() {
 	cCollision.clear();
 	cAnimation = NULL;
 	cTransform = NULL;
+	cHealth = NULL;
 	// zob = NULL;
 }
 

@@ -31,6 +31,7 @@ public : Engine(std::string);
 	void update();
 	void checkCollisions();
 	void render(sf::RenderWindow &);
+	void spawnStickman(bool, bool, bool, bool, bool, bool, bool, bool, int);
 
 	void run(sf::RenderWindow &);
 };
