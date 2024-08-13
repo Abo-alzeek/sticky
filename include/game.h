@@ -8,7 +8,7 @@ enum GameState { MENU = 0, GAME = 1, END = 2};
 class Game
 {
 protected:
-	sf::RenderWindow window; 
+	static sf::RenderWindow window; 
 	GameState state; 
 	int lastPoints; 
 	float lastTime;
@@ -18,7 +18,7 @@ public:
 	Game();
 	~Game();
 
-	sf::RenderWindow & getWindow();
+	static sf::RenderWindow & getWindow();
 	GameState getState(); 
 	void setState(GameState); 
 

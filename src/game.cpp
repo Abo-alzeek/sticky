@@ -1,7 +1,7 @@
 #include "../include/game.h"
 
 //---------------------------------------------------------------------------------------
-
+sf::RenderWindow Game::window;
 Game::Game()
 {
 	window.create(sf::VideoMode(WIDTH, HEIGHT), "Stickman Game", sf::Style::Close);
@@ -22,7 +22,7 @@ Game::~Game()
 
 sf::RenderWindow & Game::getWindow()
 {
-	return window;
+	return Game::window;
 }
 
 //---------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void Game::run()
 					{
 						menu_ptr = std::make_shared<MainMenu>(mainMenu);
 						menu_ptr->setMenuState(MenuState::MAIN_MENU);
-						menu_ptr->run(this->Game::getWindow());
+						menu_ptr->run(Game::getWindow());
 						break;
 					}
 					case MenuState::HOST:
@@ -71,7 +71,7 @@ void Game::run()
 						std::shared_ptr<Create> create = std::make_shared<Create>();
 						menu_ptr = create;
 						menu_ptr->setMenuState(MenuState::HOST);
-						menu_ptr->run(this->Game::getWindow());
+						menu_ptr->run(Game::getWindow());
 
 						if(menu_ptr->getChosenLevel() != -1) {
 							this->level = menu_ptr->getMainLevel();							
@@ -111,7 +111,7 @@ void Game::run()
 				std::cout << "Starting game on level: " << this->level << std::endl;
 
 				std::shared_ptr<Engine> engine = std::make_shared<Engine>(this->level);
-				engine->run(this->getWindow());
+				engine->run(Game::getWindow());
 				std::cout << "DONE RUNNING!" << std::endl;
 				this->state = GameState::END;
 				menu_ptr->setMenuState(MenuState::GAME_OVER);

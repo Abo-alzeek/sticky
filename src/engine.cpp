@@ -99,7 +99,7 @@ Engine::Engine(std::string level_path) {
     // skeletals creation
     this->spawnStickman(1, 0, 1, 1, 1, 1, 1, 1, 0);
     this->spawnStickman(0, 0, 1, 1, 1, 1, 1, 1, 1);
-    
+
     std::cout << "EVERY THING IS DONE HERE" << std::endl;
 }
 
@@ -320,6 +320,16 @@ bool checkPointRectangleCollision(sf::RectangleShape &rect, sf::Vector2f &p) {
     return bounds.contains(p);
 }
 
+int checkScreenCollision(sf::RectangleShape &rect, sf::RenderWindow &window) {
+    if(rect.getPosition().x <= rect.getGlobalBounds().width) return 1;
+    if(rect.getPosition().y <= rect.getGlobalBounds().height) return 2;
+    if(rect.getPosition().x + rect.getGlobalBounds().width >= window.getSize().x)
+        return 3;
+    if(rect.getPosition().y + rect.getGlobalBounds().height >= window.getSize().y)
+        return 4;
+    return 0;
+}
+
 void Engine::checkCollisions() {
     // no collision between characters when no combat
 
@@ -365,6 +375,22 @@ void Engine::checkCollisions() {
                     }
                 }
             }
+        }
+    }
+
+    // collision between characters and the screen bounds
+    for(auto stickman: m_entities.getEntities(skeletalTag)) {
+        if(checkScreenCollision(stickman->cCollision[1]->boundingBox, Game::getWindow()) == 1) {
+            stickman->cTransform->pos.x = stickman->cCollision[1]->boundingBox.getGlobalBounds().width;
+            this->moveAll(stickman, stickman->cTransform->pos);
+        }
+        else if(checkScreenCollision(stickman->cCollision[1]->boundingBox, Game::getWindow()) == 3) {
+            stickman->cTransform->pos.x = Game::getWindow().getSize().x - stickman->cCollision[1]->boundingBox.getGlobalBounds().width;
+            this->moveAll(stickman, stickman->cTransform->pos);
+        }
+        else if(checkScreenCollision(stickman->cCollision[2]->boundingBox, Game::getWindow()) == 4) {
+            stickman->cTransform->pos.y = Game::getWindow().getSize().y - stickman->cCollision[2]->boundingBox.getGlobalBounds().height;
+            this->moveAll(stickman, stickman->cTransform->pos);
         }
     }
 }

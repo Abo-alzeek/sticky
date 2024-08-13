@@ -4,7 +4,7 @@ CPPVERSION = -std=c++17
 INCLUDE = -IC:\SFML-2.6.1\include
 
 output: main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o
-	g++ ${INCLUDE} -LC:\SFML-2.6.1\lib ${CPPVERSION} main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o -o output ${LIBS}
+	g++ -mconsole ${INCLUDE} -LC:\SFML-2.6.1\lib ${CPPVERSION} main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o -o output ${LIBS}
 
 main.o: main.cpp
 	g++ ${INCLUDE} ${CPPVERSION} -g -Wall -c main.cpp
