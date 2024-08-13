@@ -176,7 +176,7 @@ void Resources::setSprites() {
 
 //---------------------------------------------------------------------------------------
 
-void Resources::getAnimations() {
+void Resources::loadAnimation(std::string path, int idx) {
     int fc, fsa;
     float ftl;
 
@@ -186,12 +186,12 @@ void Resources::getAnimations() {
     std::vector< std::pair<int, float> > temp;
     std::vector< std::vector< std::pair<int, float> > > movement;
 
-    file.open(animationsDirectory + "bones_stickman_idle.txt");
+    file.open(path);
     file >> fc >> ftl >> fsa;
     a.framesCount = fc;
     a.frameTL = ftl;
     a.forceStopAfter = fsa;
-    a.idx = 0;
+    a.idx = idx;
     
     for(int i = 0;i < a.framesCount;i++) {
         int n; 
@@ -199,6 +199,7 @@ void Resources::getAnimations() {
         for(int j = 0;j < n;j++) {
             temp.emplace_back();
             file >> temp.back().first >> temp.back().second;
+            // temp.back().second *= -1;
         }
         movement.push_back(temp);
         temp.clear();
@@ -208,63 +209,12 @@ void Resources::getAnimations() {
     animations.push_back(a);
 
     file.close();
+}
 
-
-
-    temp.clear();
-    movement.clear();
-
-    file.open(animationsDirectory + "bones_stickman_run.txt");
-    file >> fc >> ftl >> fsa;
-    a.framesCount = fc;
-    a.frameTL = ftl;
-    a.forceStopAfter = fsa;
-    a.idx = 1;
-
-    for(int i = 0;i < a.framesCount;i++) {
-        int n; 
-        file >> n;
-        for(int j = 0;j < n;j++) {
-            temp.emplace_back();
-            file >> temp.back().first >> temp.back().second;
-            temp.back().second *= -1;
-        }
-        movement.push_back(temp);
-        temp.clear();
-    }
-
-    a.movement = movement;
-    animations.push_back(a);
-
-    file.close();
-
-    temp.clear();
-    movement.clear();
-
-    file.open(animationsDirectory + "bones_stickman_punch.txt");
-    file >> fc >> ftl >> fsa;
-    a.framesCount = fc;
-    a.frameTL = ftl;
-    a.forceStopAfter = fsa;
-    a.idx = 2;
-
-    for(int i = 0;i < a.framesCount;i++) {
-        int n; 
-        file >> n;
-        for(int j = 0;j < n;j++) {
-            temp.emplace_back();
-            file >> temp.back().first >> temp.back().second;
-            temp.back().second *= -1;
-        }
-        movement.push_back(temp);
-        temp.clear();
-    }
-
-    a.movement = movement;
-    animations.push_back(a);
-
-    file.close();
-
-    temp.clear();
-    movement.clear();
+void Resources::getAnimations() {
+    loadAnimation(animationsDirectory + "bones_stickman_idle.txt", 0);
+    loadAnimation(animationsDirectory + "bones_stickman_run.txt", 1);
+    loadAnimation(animationsDirectory + "bones_stickman_punch.txt", 2);
+    loadAnimation(animationsDirectory + "bones_stickman_damage.txt", 3);
+    loadAnimation(animationsDirectory + "bones_stickman_dead.txt", 4);
 }

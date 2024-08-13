@@ -1,15 +1,83 @@
 #include "../include/basic.h"
 
+sf::Vector2f adjustPosition(sf::RectangleShape& movingRect, const sf::RectangleShape& staticRect) {
+    // Get the bounds of the rectangles
+    sf::FloatRect movingBounds = movingRect.getGlobalBounds();
+    sf::FloatRect staticBounds = staticRect.getGlobalBounds();
+
+    // Calculate the overlap on each axis
+    float overlapLeft = movingBounds.left + movingBounds.width - staticBounds.left;
+    float overlapRight = staticBounds.left + staticBounds.width - movingBounds.left;
+    float overlapTop = movingBounds.top + movingBounds.height - staticBounds.top;
+    float overlapBottom = staticBounds.top + staticBounds.height - movingBounds.top;
+
+    // Find the minimum overlap to resolve the collision
+    float minOverlapX = (overlapLeft < overlapRight) ? -overlapLeft : overlapRight;
+    float minOverlapY = (overlapTop < overlapBottom) ? -overlapTop : overlapBottom;
+
+    return sf::Vector2f(minOverlapX, minOverlapY);
+}
+
+
+void Engine::moveAll(std::shared_ptr<Entity> e, sf::Vector2f v) {
+    if(e->cTransform != NULL) e->cTransform->pos = v;
+
+    if(e->cCollision.size()) {
+        for(int i = 0;i < (int)e->cCollision.size();i++) {
+            e->cCollision[i]->boundingBox.setPosition(e->cTransform->pos.x, e->cTransform->pos.y + this->skeletonBoundingBoxesMargins[i]);
+        }
+    }
+
+    if(e->cBones != NULL) e->cBones->setBonePosition(STICKPARTS::WAIST, v);
+
+    if(e->cHealth != NULL) e->cHealth->setBarsPosition(sf::Vector2f(v.x - 50, v.y - 120));
+}
+
 void Engine::createSkeletonBoundingBoxes(std::shared_ptr<Entity> e) {
     for(int i=0; i<3; i++) {
         e->cCollision.emplace_back();
         e->cCollision.back() = std::make_shared<CCollision>();
         e->cCollision.back()->boundingBox.setSize(this->skeletonBoundingBoxes[i]);
         e->cCollision.back()->boundingBox.setOrigin(this->skeletonBoundingBoxes[i].x / 2.0, this->skeletonBoundingBoxes[i].y / 2.0);
-        // e->cCollision.back()->boundingBox.setPosition(e->cTransform->pos);
         e->cCollision.back()->boundingBox.setPosition(e->cTransform->pos.x, e->cTransform->pos.y + this->skeletonBoundingBoxesMargins[i]);
+        
+        e->cCollision.back()->boundingBox.setFillColor(sf::Color(0, 0, 0, 0));
         e->cCollision.back()->boundingBox.setOutlineColor(this->skeletonBoxesColors[i]);
-        e->cCollision.back()->boundingBox.setOutlineThickness(5);
+        e->cCollision.back()->boundingBox.setOutlineThickness(2);
+    }
+}
+
+void Engine::spawnStickman(bool input, bool texture, bool collision, bool animation, bool transform, bool bones, bool state, bool health, int idx) {
+    auto e = m_entities.addEntity(&skeletalTag);
+    
+    if(input) e->cInput = std::make_shared<CInput>();
+
+    if(state) {
+        e->cState = std::make_shared<CState>();
+        e->cState->state = 0;
+    }
+
+    if(animation) {
+        e->cAnimation = std::make_shared<CAnimation>();
+        e->cAnimation->setAnimation(this->m_resources.animations[e->cState->state], 1);
+    }
+
+    if(transform) {
+        e->cTransform = std::make_shared<CTransform>();
+        e->cTransform->pos.x = level.spawinigPoints[idx].first;
+        e->cTransform->pos.y = level.spawinigPoints[idx].second;
+    }
+
+    if(collision) createSkeletonBoundingBoxes(e);
+
+    if(bones) {
+        e->cBones = std::make_shared<CBones>();
+        e->cBones->makeHumanSkeleton(25, 45, 35, 37, 35, 40, 25, 20);
+        e->cBones->setBonePosition(0, e->cTransform->pos);
+    }
+
+    if(health) {
+        e->cHealth = std::make_shared<CHealth>(100, e->cBones->bones[STICKPARTS::HEAD].p1 + sf::Vector2f(0, -25));
     }
 }
 
@@ -28,44 +96,10 @@ Engine::Engine(std::string level_path) {
         }
     }
 
-    // skeletal creation
-    auto e = m_entities.addEntity(&skeletalTag);
-    e->cInput = std::make_shared<CInput>();
-
-    e->cState = std::make_shared<CState>();
-    e->cState->state = 0;
-
-    e->cAnimation = std::make_shared<CAnimation>();
-    e->cAnimation->setAnimation(this->m_resources.animations[e->cState->state], 1);
-
-    e->cTransform = std::make_shared<CTransform>();
-    e->cTransform->pos.x = level.spawinigPoints[0].first;
-    e->cTransform->pos.y = level.spawinigPoints[0].second;
-
-    createSkeletonBoundingBoxes(e);
-
-    e->cBones = std::make_shared<CBones>();
-    e->cBones->makeHumanSkeleton(70, 35, 37, 35, 40, 25, 20);
-    e->cBones->setBonePosition(0, Point(e->cTransform->pos.x, e->cTransform->pos.y - 40));
+    // skeletals creation
+    this->spawnStickman(1, 0, 1, 1, 1, 1, 1, 1, 0);
+    this->spawnStickman(0, 0, 1, 1, 1, 1, 1, 1, 1);
     
-    // making another stickman
-    e = m_entities.addEntity(&skeletalTag);
-    e->cState = std::make_shared<CState>();
-    e->cState->state = 0;
-
-    e->cAnimation = std::make_shared<CAnimation>();
-    e->cAnimation->setAnimation(this->m_resources.animations[e->cState->state], 1);
-
-    e->cTransform = std::make_shared<CTransform>();
-    e->cTransform->pos.x = level.spawinigPoints[0].first + 256;
-    e->cTransform->pos.y = level.spawinigPoints[0].second;
-
-    createSkeletonBoundingBoxes(e);
-
-    e->cBones = std::make_shared<CBones>();
-    e->cBones->makeHumanSkeleton(70, 35, 37, 35, 40, 25, 20);
-    e->cBones->setBonePosition(0, Point(e->cTransform->pos.x, e->cTransform->pos.y - 40));
-
     std::cout << "EVERY THING IS DONE HERE" << std::endl;
 }
 
@@ -74,9 +108,9 @@ Engine::~Engine() {
 }
 
 void Engine::run(sf::RenderWindow &window) {
-    Listener listen;
-    sf::Thread thread(listen.Run);
-    thread.launch();
+    // Listener listen;
+    // sf::Thread thread(listen.Run);
+    // thread.launch();
 
     while(running) {
         m_entities.update();
@@ -95,7 +129,7 @@ void Engine::run(sf::RenderWindow &window) {
         m_currentFrame++;
     }
 
-    thread.terminate();
+    // thread.terminate();
 }
 
 void Engine::handleInput(sf::RenderWindow &window) {
@@ -114,7 +148,7 @@ void Engine::handleInput(sf::RenderWindow &window) {
                         break;
                     case sf::Keyboard::A:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL) {
+                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
                                 e->cState->state = -1;
                                 break;
                             }
@@ -122,7 +156,7 @@ void Engine::handleInput(sf::RenderWindow &window) {
                         break;
                     case sf::Keyboard::D:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL) {
+                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
                                 e->cState->state = 1;
                                 break;
                             }
@@ -130,7 +164,7 @@ void Engine::handleInput(sf::RenderWindow &window) {
                         break;
                     case sf::Keyboard::F:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL) {
+                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
                                 e->cState->state = 2 * e->cAnimation->invert;
                                 break;
                             }
@@ -210,16 +244,19 @@ void Engine::handleInput(sf::RenderWindow &window) {
 */
 
 void Engine::update() {
+
+    std::cout << "ONE\n";
+
     // preUpdate
     for(auto e : m_entities.getEntities()) {
-        if(e->cAnimation != NULL && !e->cAnimation->forceFrameOut) {
-            e->cState->state = 0;
-        }
+        if(e->cState != NULL && e->cState->toUpdate != e->cState->INF) e->cState->update();
     }
+    std::cout << "TWO\n";
 
-    // handling input
+    // updating states
     for(auto e : m_entities.getEntities()) {
         if(e->cState != NULL) {
+            
             if(e->cState->state != e->cState->lastFrameState) {
                 int in = 1;
                 if(e->cState->state) in = (e->cState->state / abs(e->cState->state));
@@ -227,10 +264,10 @@ void Engine::update() {
                 if(e->cState->state == 0) e->cTransform->velocity.x = 0;
                 else if( abs(e->cState->state) == 1) e->cTransform->velocity.x = in * 7.0;
                 else if( abs(e->cState->state) == 2) e->cTransform->velocity.x = 0;
+                else e->cTransform->velocity.x = 0;
 
                 e->cAnimation->setAnimation(this->m_resources.animations[abs(e->cState->state)], (e->cState->state / (abs(e->cState->state) + (e->cState->state == 0))) - (e->cAnimation->invert / abs(e->cAnimation->invert)) * (e->cState->state != 0));
             }
-            // std::cout << "STATE: " << e->cState->state << " " << e->cState->lastFrameState <<  "\n";
         }
     }
 
@@ -239,141 +276,136 @@ void Engine::update() {
         if(e->cTransform != NULL) {
             e->cTransform->velocity += e->cTransform->gravity;            
             e->cTransform->pos += e->cTransform->velocity;
-            e->cBones->moveBone(0, Point(e->cTransform->velocity.x, e->cTransform->velocity.y));
-            if(e->cCollision.size() == 3)
-                for(int i=0; i<3; i++) {
-                    e->cCollision[i]->boundingBox.setPosition(e->cTransform->pos.x, e->cTransform->pos.y + this->skeletonBoundingBoxesMargins[i]);
-                }
+
+            this->moveAll(e, e->cTransform->pos);
         }
     }
+
 
     // update animations
     for(auto e : m_entities.getEntities()) {
         if(e->cAnimation != NULL) {
             e->cAnimation->playAnimation(e->cAnimation->moves, *e->cBones, e->cState);
+
+            
+            if(e->cAnimation->forceFrameOut == 0) {
+                std::cout << " TIME OUT!! " << e->cState->state << "\n";
+                if(abs(e->cState->state) == 4) e->cState->toUpdate = -e->cState->INF;
+                else e->cState->toUpdate = 0;
+            }
+        }
+    }
+
+    // check for dead stickman 
+    for(auto e : m_entities.getEntities(skeletalTag)) {
+        if(e->cState->state == -e->cState->INF) e->destroy();
+
+        if(e->cHealth->HP <= 0 && abs(e->cState->state) != 4) {
+            e->cState->toUpdate = 4 * e->cAnimation->invert;
         }
     }
 
     // update sounds
 }
 
-bool checkRectangularCollision(sf::RectangleShape rect1, sf::RectangleShape rect2) {
-    int w1 = rect1.getGlobalBounds().width;
-    int h1 = rect1.getGlobalBounds().height;
-    int x1 = rect1.getPosition().x;
-    int y1 = rect1.getPosition().y;
-    float npx = x1 + w1/2.0;
-    float npy = y1 + h1/2.0;
-    rect1.setOrigin(w1/2.0, h1/2.0);
-    rect1.setPosition(npx, npy);
+bool checkRectangularCollision(sf::RectangleShape &rect1, sf::RectangleShape &rect2) {
+    sf::FloatRect bounds1 = rect1.getGlobalBounds();
+    sf::FloatRect bounds2 = rect2.getGlobalBounds();
 
-    int w2 = rect2.getGlobalBounds().width;
-    int h2 = rect2.getGlobalBounds().height;
-    int x2 = rect2.getPosition().x;
-    int y2 = rect2.getPosition().y;
-
-    npx = x2 + w2/2.0;
-    npy = y2 + h2/2.0;
-    rect2.setOrigin(w2/2.0, h2/2.0);
-    rect2.setPosition(npx, npy);
-
-    if(abs(x1 - x2) <= (w1/2.0 + w2/2.0)) {
-        if(abs(y1 - y2) <= (h1/2.0 + h2/2.0)) {
-            return true;
-        }
-    }
-
-    return false;
+    return bounds1.intersects(bounds2);
 }
 
-bool checkPointRectangleCollision(sf::RectangleShape rect, Point p) {
-    int w = rect.getGlobalBounds().width;
-    int h = rect.getGlobalBounds().height;
-
-    rect.setOrigin(w/2.0, h/2.0);
-
-    int x = rect.getPosition().x;
-    int y = rect.getPosition().y;
-
-    if( abs(p.x - x) < w/2.0 && abs(p.y - y) < h / 2.0) return true;
-    return false;
+bool checkPointRectangleCollision(sf::RectangleShape &rect, sf::Vector2f &p) {
+    sf::FloatRect bounds = rect.getGlobalBounds();
+    return bounds.contains(p);
 }
 
 void Engine::checkCollisions() {
     // no collision between characters when no combat
-    // collision is between characters and suroundings
+
+
+    // collision is between characters and tiles
     for(auto stickman : m_entities.getEntities(skeletalTag)) {
         bool isCollision = false;
         for(auto tile : m_entities.getEntities(tileTag)) {
             if(stickman->cCollision.size() == 0) continue;
-            
-            // if(checkRectangularCollision(stickman->cCollision[2]->boundingBox, tile->cCollision[0]->boundingBox) == 2) { // 1 left, 2 bottom, 3 right, 4 above, 0 no collision
-            //     stickman->cTransform->gravity = {0, 0};
-            //     stickman->cTransform->velocity.y = 0;
-                // stickman->cTransform->pos.y = tile->cCollision[0]->boundingBox.getPosition().y - (stickman->cCollision[2]->boundingBox.getGlobalBounds().height - stickman->cCollision[2]->boundingBox.getOrigin().y);
-            //     // stickman->cBones->moveBone(0, Point(0, (stickman->cCollision->boundingBox.getGlobalBounds().height / 2.0 + stickman->cCollision->boundingBox.getPosition().y) -  tile->cCollision->boundingBox.getPosition().y));
-                // stickman->cBones->setBonePosition(0, Point(stickman->cTransform->pos.x, stickman->cTransform->pos.y - 40));
-            //     if(stickman->cCollision.size() == 3)
-            //         for(int i=0; i<3; i++) {
-            //             stickman->cCollision[i]->boundingBox.setPosition(stickman->cTransform->pos.x, stickman->cTransform->pos.y + this->skeletonBoundingBoxesMargins[i]);
-            //         }
-            //     isCollision = true;
-            // }
-            bool headColided = checkRectangularCollision(stickman->cCollision[0]->boundingBox, tile->cCollision[0]->boundingBox),
-                bodyColided = checkRectangularCollision(stickman->cCollision[1]->boundingBox, tile->cCollision[0]->boundingBox),
-                feetColided = checkRectangularCollision(stickman->cCollision[2]->boundingBox, tile->cCollision[0]->boundingBox);
-            if(feetColided && !headColided && !bodyColided) {
-                ;
-            }
-        }
+            bool headCollided = checkRectangularCollision(stickman->cCollision[0]->boundingBox, tile->cCollision[0]->boundingBox),
+                 bodyCollided = checkRectangularCollision(stickman->cCollision[1]->boundingBox, tile->cCollision[0]->boundingBox),
+                 feetCollided = checkRectangularCollision(stickman->cCollision[2]->boundingBox, tile->cCollision[0]->boundingBox);
 
-        for(auto stickman2 : m_entities.getEntities(skeletalTag)) {
-            if(stickman2->id() == stickman->id()) continue;
-            if( abs(stickman->cState->state) == 2 && checkPointRectangleCollision(stickman2->cCollision[1]->boundingBox, stickman->cBones->bones[3].p2)) {
-                std::cout << "STICKMAN WAS HIT" << std::endl;
+            if(feetCollided && !headCollided && !bodyCollided) {
+                stickman->cTransform->pos.y += adjustPosition(stickman->cCollision[2]->boundingBox, tile->cCollision[0]->boundingBox).y;
+                this->moveAll(stickman, stickman->cTransform->pos);
+
+                stickman->cTransform->gravity = {0, 0};
+                stickman->cTransform->velocity.y = 0;
+                isCollision = true;
             }
-            if( abs(stickman2->cState->state) == 2 && checkPointRectangleCollision(stickman->cCollision[1]->boundingBox, stickman2->cBones->bones[3].p2)) {
-                std::cout << "STICKMAN WAS HIT" << std::endl;
+
+            if( (int)feetCollided + (int)headCollided + (int)bodyCollided > 1 ) {
+                stickman->cTransform->pos.x += adjustPosition(stickman->cCollision[2]->boundingBox, tile->cCollision[0]->boundingBox).x;
+                this->moveAll(stickman, stickman->cTransform->pos);
             }
         }
 
         if(!isCollision) stickman->cTransform->gravity = {0, 1};
+    }
+
+    // collision between two characters al least one of them is hitting 
+    for(auto stickman1 : m_entities.getEntities(skeletalTag)) {
+        for(auto stickman2 : m_entities.getEntities(skeletalTag)) {
+            if(stickman1->id() == stickman2->id()) continue;
+
+            if(abs(stickman1->cState->state) == 2 && abs(stickman2->cState->state) != 3) {
+                for(int i = 0;i < 3;i++) {
+                    if(checkPointRectangleCollision(stickman2->cCollision[i]->boundingBox, stickman1->cBones->bones[STICKPARTS::RIGHT_HAND].p2)) {
+                        stickman2->cState->toUpdate = -3 * stickman1->cAnimation->invert;
+                        stickman2->cHealth->updateHealth();
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
 void Engine::render(sf::RenderWindow &window) {
     window.clear(sf::Color(255, 255, 255, 255));
 
-    // window.draw( this->m_resources.backgrounds[this->level.background] );
+    window.draw( this->m_resources.backgrounds[this->level.background] );
 
     for(auto e : m_entities.getEntities(tileTag)) {
         window.draw(e->cTextrue->sprite);
     }
 
-    for(auto tiles: m_entities.getEntities(tileTag)) {
-        tiles->cCollision[0]->boundingBox.setOutlineThickness(2);
-        tiles->cCollision[0]->boundingBox.setOutlineColor(sf::Color::Red);
-        tiles->cCollision[0]->boundingBox.setFillColor(sf::Color(255, 0, 0, 0));
-        window.draw(tiles->cCollision[0]->boundingBox);
-    }
+    // for(auto tiles: m_entities.getEntities(tileTag)) {
+    //     tiles->cCollision[0]->boundingBox.setOutlineThickness(2);
+    //     tiles->cCollision[0]->boundingBox.setOutlineColor(sf::Color::Red);
+    //     tiles->cCollision[0]->boundingBox.setFillColor(sf::Color(255, 0, 0, 0));
+    //     window.draw(tiles->cCollision[0]->boundingBox);
+    // }
+    // for(auto &e : m_entities.getEntities()) {
+    //     for(auto colissionBox: e->cCollision) {
+    //         window.draw(colissionBox->boundingBox);
+    //     }
+    // }
 
     for(auto e : m_entities.getEntities(stickmanTag)) {
         window.draw(e->cTextrue->sprite);
     }
 
-    for(auto &stickman : m_entities.getEntities()) {
-        // stickman->cCollision->boundingBox.setOutlineThickness(5);
-        // stickman->cCollision->boundingBox.setOutlineColor(sf::Color::Red);
-        // stickman->cCollision->boundingBox.setFillColor(sf::Color(255, 0, 0, 0));
-        for(auto colissionBox: stickman->cCollision) {
-            window.draw(colissionBox->boundingBox);
-        }
-    }
+
     for(auto &e : m_entities.getEntities(skeletalTag)) {
         for(auto &b : e->cBones->bones) {
             b.draw(window);
         }
+
+        if(e->cHealth != NULL) {
+            window.draw(e->cHealth->healthBar);
+            window.draw(e->cHealth->health);
+        }
     }
+
 
     window.display();
 }
@@ -382,3 +414,5 @@ void Engine::render(sf::RenderWindow &window) {
 /*
 
 */
+
+

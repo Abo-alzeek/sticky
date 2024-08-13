@@ -46,6 +46,7 @@ public:
 
     std::vector< std::vector< std::vector<std::pair<int, float>> > >animations2;
 
+    void loadAnimation(std::string, int);
     void loadTextures();
     void setSprites();
     void getAnimations();

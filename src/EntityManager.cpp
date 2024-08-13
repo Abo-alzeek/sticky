@@ -1,6 +1,7 @@
 #include "../include/basic.h"
 
 EntityManager::EntityManager() {
+	// std::cout << "ENTITIY MANAGER CREATED\n";
 	;
 }
 

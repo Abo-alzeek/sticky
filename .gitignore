@@ -1,4 +1,8 @@
 *.o
-Makefile
 *.dll
+*.txt
+out
+output
+Makefile
 Testings/
+.vscode/
