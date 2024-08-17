@@ -24,6 +24,8 @@ public:
     void on_close(websocketpp::connection_hdl);
     void on_fail(websocketpp::connection_hdl);
     void on_message(websocketpp::connection_hdl hdl, message_ptr msg);
+    bool m_open;
+    bool m_done;
 private:
     CState snd_state, rcv_state;
     client m_client;
@@ -31,8 +33,7 @@ private:
     std::string other_player;
     websocketpp::connection_hdl m_hdl;
     websocketpp::lib::mutex m_lock;
-    bool m_open;
-    bool m_done;
+    
 
 };
 
