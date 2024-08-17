@@ -10,7 +10,7 @@ class Engine
 	int m_currentFrame = 0;
 	EntityManager m_entities;
 	Resources m_resources;
-	Listener listen;
+	std::shared_ptr<Listener> listen;
 
 	Level level;
 	std::vector<std::vector<sf::Sprite>> MapSprites;

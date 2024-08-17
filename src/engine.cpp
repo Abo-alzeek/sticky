@@ -81,6 +81,7 @@ void Engine::spawnStickman(bool input, bool texture, bool collision, bool animat
 }
 
 Engine::Engine(std::string level_path) {
+    this->listen = std::make_shared<Listener>();
     this->level = Level(level_path);
 
     std::fstream f;
@@ -88,7 +89,7 @@ Engine::Engine(std::string level_path) {
     std::string player;
     f >> player;
 
-    std::cout << "THE PLAYER IS: " << player << std::endl;
+    // std::cout << "THE PLAYER IS: " << player << std::endl;
 
     f.close();
 
@@ -123,8 +124,8 @@ Engine::~Engine() {
 }
 
 void Engine::run(sf::RenderWindow &window) {
-    sf::Thread thread(this->listen.Run);
-    thread.launch();
+    std::shared_ptr<sf::Thread> thread = std::make_shared<sf::Thread>(this->listen->Run);
+    thread->launch();
  
     while(running) {
         m_entities.update();
@@ -136,18 +137,16 @@ void Engine::run(sf::RenderWindow &window) {
 
         m_currentFrame++;
 
-        if (this->listen.connected == 0) {
-            //thread.terminate();
-            //thread = sf::Thread(this->listen.Run);
-            this->listen.connected = 1;
-            this->listen.m_open = 0;
-            this->listen.m_done = 0;
-            thread.launch();
+        if (this->listen->connected == 0) {
+            thread->terminate();
+            this->listen = std::make_shared<Listener>();
+            thread = std::make_shared<sf::Thread>(this->listen->Run);
+            thread->launch();
         }
 
     }
 
-    thread.terminate();
+    thread->terminate();
 }
 
 void Engine::handleInput(sf::RenderWindow &window) {
@@ -264,7 +263,7 @@ void Engine::update() {
     // preUpdate
     for(auto e : m_entities.getEntities()) {
         if(e->tag() == skeletalTag && e->cInput == NULL && e->cState->state != Animations::STICKMAN_DIE) {
-            CState tempState = this->listen.get_state();
+            CState tempState = this->listen->get_state();
             e->cState->state = tempState.state;
             // e->cState->lastFrameState = tempState.lastFrameState;
             e->cTransform->pos = tempState.position;
@@ -338,7 +337,7 @@ void Engine::update() {
             if(e->cInput != NULL) {
                 e->cState->position = e->cTransform->pos;
                 e->cState->hp = e->cHealth->HP;
-                this->listen.set_sending_state(*e->cState);
+                this->listen->set_sending_state(*e->cState);
             }
         }
     }
