@@ -121,7 +121,10 @@ void CAnimation::setAnimation(anime a, int in) {
 }
 
 CState::CState() {
-    ;
+    this->state = 0;
+    this->lastFrameState = 0;
+    this->toUpdate = INF;
+    this->lastState = 0;
 }
 
 CState::~CState() {

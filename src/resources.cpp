@@ -22,58 +22,40 @@ std::string Resources::getSkyWallpaper1() {
     return Resources::graphicsDirectory + "cloudySkyWallpaper_1.jpeg";
 }
 
-//---------------------------------------------------------------------------------------
-
 std::string Resources::getSkyWallpaper2() {
     return Resources::graphicsDirectory + "cloudySkyWallpaper_2.jpeg";
 }
 
-//---------------------------------------------------------------------------------------
-
 std::string Resources::getMoonlightWallpaper() {
     return Resources::graphicsDirectory + "Moonlight.jpeg";
 }
-
-//---------------------------------------------------------------------------------------
 
 std::string Resources::getStickmanSpriteSheet() {
     return Resources::graphicsDirectory + "stickman_spritesheet.png";
     // w = 249, h = 695
 }
 
-//---------------------------------------------------------------------------------------
-
 std::string Resources::getMenuBackgroundTexture()
 {
     return Resources::graphicsDirectory + "backg1.jpg";
 }
-
-//---------------------------------------------------------------------------------------
 
 std::string Resources::getMenuBackgroundFont()
 {
     return Resources::fontsDirectory  + "BLOCKSS.otf";
 }
 
-//---------------------------------------------------------------------------------------
-
 std::string Resources::getBackground1() {
     return Resources::graphicsDirectory + "backg1.jpg";
 }
-
-//---------------------------------------------------------------------------------------
 
 std::string Resources::getTilesTexture() {
     return Resources::graphicsDirectory + "tilesheet.png";
 }
 
-//---------------------------------------------------------------------------------------
-
 std::string Resources::getStickmanBody() {
     return Resources::graphicsDirectory + "stick_body_2.png";
 }
-
-//---------------------------------------------------------------------------------------
 
 std::string Resources::getStickmanPart() {
     return Resources::graphicsDirectory + "stickPart2.png";
@@ -108,8 +90,6 @@ void Resources::loadTextures() {
     if(!temp.loadFromFile(getSkyWallpaper2() )) std::cout << "No backgroun1 texture!!" << std::endl;
     else textures.push_back(temp);
 }
-
-//---------------------------------------------------------------------------------------
 
 void Resources::setSprites() {
     sf::Sprite semp;

@@ -108,10 +108,12 @@ public:
 
 class CState {
 public:
-    int state = 0;
-    int lastFrameState = 0;
+    int state;
+    int lastFrameState;
+    int toUpdate;
+    int lastState;
+
     const int INF = 2e9;
-    int toUpdate = INF;
 
     CState();
     ~CState();
@@ -128,9 +130,6 @@ public:
     CBones();
     ~CBones();
 
-    // void handleMoves();
-    // void setMovementVector(std::vector< std::vector< std::pair<int, float> > >&);
-    // void applyMove();
     void update(int);
     void setBonePosition(int, sf::Vector2f);
     void printState();

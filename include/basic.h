@@ -37,8 +37,10 @@ using json = nlohmann::json;
 typedef websocketpp::client<websocketpp::config::asio_client> client;
 
 #define FPS 60
-#define HEIGHT 768
-#define WIDTH 1280
+#define HEIGHT 1080
+#define WIDTH 1920
+// #define HEIGHT 768
+// #define WIDTH 1280
 #define PI acos(-1)
 
 enum STICKPARTS {

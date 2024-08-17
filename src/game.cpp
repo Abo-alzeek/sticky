@@ -4,7 +4,7 @@
 // sf::RenderWindow Game::getWindow();
 Game::Game()
 {
-	window.create(sf::VideoMode(WIDTH, HEIGHT), "Stickman Game", sf::Style::Close);
+	window.create(sf::VideoMode(WIDTH, HEIGHT), "Stickman Game", sf::Style::Close | sf::Style::Fullscreen);
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(60);
 
