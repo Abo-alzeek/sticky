@@ -18,7 +18,6 @@ sf::Vector2f adjustPosition(sf::RectangleShape& movingRect, const sf::RectangleS
     return sf::Vector2f(minOverlapX, minOverlapY);
 }
 
-
 void Engine::moveAll(std::shared_ptr<Entity> e, sf::Vector2f v) {
     if(e->cTransform != NULL) e->cTransform->pos = v;
 
@@ -108,10 +107,9 @@ Engine::~Engine() {
 }
 
 void Engine::run(sf::RenderWindow &window) {
-    // Listener listen;
-    // sf::Thread thread(listen.Run);
+    // sf::Thread thread(this->listen.Run);
     // thread.launch();
-
+ 
     while(running) {
         m_entities.update();
 
@@ -119,12 +117,6 @@ void Engine::run(sf::RenderWindow &window) {
         update();
         checkCollisions(window);
         render(window);
-
-        for(auto e : m_entities.getEntities()) {
-            if(e->cState != NULL) {
-                e->cState->lastFrameState = e->cState->state;
-            }
-        }
 
         m_currentFrame++;
     }
@@ -239,39 +231,36 @@ void Engine::handleInput(sf::RenderWindow &window) {
     }
 }
 
-/*
-
-*/
-
 void Engine::update() {
-
-    std::cout << "UPDATE_1\n";
-
     // preUpdate
     for(auto e : m_entities.getEntities()) {
+        // if(e->tag() == skeletalTag && e->cInput == NULL) {
+        //     CState tempState = this->listen.get_state();
+        //     e->cState->state = tempState.state;
+        //     e->cState->lastFrameState = tempState.lastFrameState;
+        //     e->cState->toUpdate = tempState.toUpdate;
+        // }
+        
         if(e->cState != NULL && e->cState->toUpdate != e->cState->INF) e->cState->update();
     }
 
-    std::cout << "UPDATE 4\n";
     // updating states
     for(auto e : m_entities.getEntities()) {
         if(e->cState != NULL) {
             
-            if(e->cState->state != e->cState->lastFrameState) {
+            if(e->cState->state != e->cState->lastFrameState && abs(e->cState->state) != e->cState->INF) {
                 int in = 1;
                 if(e->cState->state) in = (e->cState->state / abs(e->cState->state));
 
-                if(e->cState->state == 0) e->cTransform->velocity.x = 0;
-                else if( abs(e->cState->state) == 1) e->cTransform->velocity.x = in * 7.0;
-                else if( abs(e->cState->state) == 2) e->cTransform->velocity.x = 0;
+                if(e->cState->state == Animations::STICKMAN_IDLE) e->cTransform->velocity.x = 0;
+                else if( abs(e->cState->state) == Animations::STICKMAN_RUN) e->cTransform->velocity.x = in * 7.0;
+                else if( abs(e->cState->state) == Animations::STICKMAN_PUNCH) e->cTransform->velocity.x = 0;
                 else e->cTransform->velocity.x = 0;
 
-                e->cAnimation->setAnimation(this->m_resources.animations[abs(e->cState->state)], (e->cState->state / (abs(e->cState->state) + (e->cState->state == 0))) - (e->cAnimation->invert / abs(e->cAnimation->invert)) * (e->cState->state != 0));
+                e->cAnimation->setAnimation(this->m_resources.animations[abs(e->cState->state)], (e->cState->state / (abs(e->cState->state) + (e->cState->state == Animations::STICKMAN_IDLE))) - (e->cAnimation->invert / abs(e->cAnimation->invert)) * (e->cState->state != Animations::STICKMAN_IDLE));
             }
         }
     }
-
-    std::cout << "UPDATE 3\n";
 
     // update movements
     for(auto e : m_entities.getEntities()) {
@@ -283,9 +272,6 @@ void Engine::update() {
         }
     }
 
-    std::cout << "UPDATE 5\n";
-
-
     // update animations
     for(auto e : m_entities.getEntities()) {
         if(e->cAnimation != NULL) {
@@ -293,26 +279,32 @@ void Engine::update() {
             e->cAnimation->playAnimation(e->cAnimation->moves, *e->cBones, e->cState);
 
             if(e->cAnimation->forceFrameOut == 0) {
-                std::cout << " TIME OUT!! " << e->cState->state << "\n";
-                if(abs(e->cState->state) == 4) e->cState->toUpdate = -e->cState->INF;
-                else e->cState->toUpdate = 0;
+                if(abs(e->cState->state) == Animations::STICKMAN_DIE) e->cState->toUpdate = -e->cState->INF;
+                else e->cState->toUpdate = Animations::STICKMAN_IDLE;
             }
         }
     }
-
-    std::cout << "UPDATE 6\n";
 
     // check for dead stickman 
     for(auto e : m_entities.getEntities(skeletalTag)) {
         if(e->cState->state == -e->cState->INF) e->destroy();
 
-        if(e->cHealth->HP <= 0 && abs(e->cState->state) != 4) {
-            e->cState->toUpdate = 4 * e->cAnimation->invert;
+        if(e->cHealth->HP <= 0 && abs(e->cState->state) != Animations::STICKMAN_DIE) {
+            e->cState->toUpdate = Animations::STICKMAN_DIE * e->cAnimation->invert;
         }
     }
 
-    std::cout << "UPDATE_2\n";
     // update sounds
+
+    // late update
+    for(auto e : m_entities.getEntities()) {
+        if(e->cState != NULL) {
+            e->cState->lastFrameState = e->cState->state;
+            if(e->cInput != NULL) {
+                this->listen.set_state(*e->cState);
+            }
+        }
+    }
 }
 
 bool checkRectangularCollision(sf::RectangleShape &rect1, sf::RectangleShape &rect2) {
@@ -374,8 +366,8 @@ void Engine::checkCollisions(sf::RenderWindow &window) {
             if(abs(stickman1->cState->state) == 2 && abs(stickman2->cState->state) != 3) {
                 for(int i = 0;i < 3;i++) {
                     if(checkPointRectangleCollision(stickman2->cCollision[i]->boundingBox, stickman1->cBones->bones[STICKPARTS::RIGHT_HAND].p2)) {
-                        stickman2->cState->toUpdate = -3 * stickman1->cAnimation->invert;
-                        stickman2->cHealth->updateHealth();
+                        stickman2->cState->toUpdate = -1 * Animations::STICKMAN_DAMAGE * stickman1->cAnimation->invert;
+                        stickman2->cHealth->updateHealth(-100);
                         break;
                     }
                 }
@@ -431,6 +423,12 @@ void Engine::render(sf::RenderWindow &window) {
             b.draw(window);
         }
 
+        // e->cBones->bones[STICKPARTS::WAIST].draw(window);
+        // e->cBones->bones[STICKPARTS::LEFT_LEG].draw(window);
+        // e->cBones->bones[STICKPARTS::RIGHT_LEG].draw(window);
+        // e->cBones->bones[STICKPARTS::LEFT_FOOT].draw(window);
+        // e->cBones->bones[STICKPARTS::RIGHT_FOOT].draw(window);
+
         if(e->cHealth != NULL) {
             window.draw(e->cHealth->healthBar);
             window.draw(e->cHealth->health);
@@ -440,8 +438,3 @@ void Engine::render(sf::RenderWindow &window) {
 
     window.display();
 }
-
-
-/*
-
-*/

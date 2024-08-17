@@ -55,6 +55,11 @@
         "typeinfo": "cpp",
         "optional": "cpp",
         "list": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "any": "cpp",
+        "cstring": "cpp",
+        "forward_list": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp"
     }
 }

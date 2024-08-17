@@ -17,7 +17,9 @@
 #include <SFML/Audio.hpp>
 #include <memory>
 #include <functional>
-
+#include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/client.hpp> 
+#include "json.hpp"
 
 #include "resources.h"
 #include "game.h"
@@ -26,23 +28,25 @@
 #include "Entity.h"
 #include "EntityManager.h"
 #include "button.h"
+#include "listener.h"
 #include "menu.h"
 #include "Level.h"
 #include "engine.h"
-#include "listener.h"
+
+using json = nlohmann::json;
+typedef websocketpp::client<websocketpp::config::asio_client> client;
 
 #define FPS 60
 #define HEIGHT 768
 #define WIDTH 1280
 #define PI acos(-1)
-// #define float double
 
-void test();
-void test2();
-void test3();
-void test4();
-std::string pobierzAktualnyCzas();
-std::string convertSecondsToMinutes(float);
-std::string convertIntToString(int);
+enum STICKPARTS {
+    WAIST, BACK, RIGHT_ARM, LEFT_ARM, RIGHT_HAND, LEFT_HAND, RIGHT_LEG, LEFT_LEG, RIGHT_FOOT, LEFT_FOOT, NECK, HEAD
+};
+
+enum Animations {
+    STICKMAN_IDLE, STICKMAN_RUN, STICKMAN_PUNCH, STICKMAN_DAMAGE, STICKMAN_DIE
+};
 
 #endif

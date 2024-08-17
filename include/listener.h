@@ -5,12 +5,13 @@
 
 class Listener {
 private:
-    CState m_state;
+    CState snd_state, rcv_state;
 public:
     Listener();
 
     std::function<void()> Run;
 
+    void set_state(CState &);
     CState get_state();
 };
 

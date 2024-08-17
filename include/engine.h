@@ -10,6 +10,7 @@ class Engine
 	int m_currentFrame = 0;
 	EntityManager m_entities;
 	Resources m_resources;
+	Listener listen;
 
 	Level level;
 	std::vector<std::vector<sf::Sprite>> MapSprites;
@@ -22,8 +23,9 @@ class Engine
 	float skeletonBoundingBoxesMargins[3] = {-skeletonBoundingBoxes[0].y / 2 - skeletonBoundingBoxes[1].y / 2, 0.0, skeletonBoundingBoxes[1].y / 2 + skeletonBoundingBoxes[2].y / 2};
 	sf::Color skeletonBoxesColors[3] = {sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 255, 255, 255)};
 
-public : Engine(std::string);
+public : 
 	~Engine();
+	Engine(std::string);
 
 	void moveAll(std::shared_ptr<Entity> , sf::Vector2f);
 	void createSkeletonBoundingBoxes(std::shared_ptr<Entity>);

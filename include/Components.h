@@ -32,15 +32,10 @@ struct Bone {
             c1.setFillColor(sf::Color(0, 0, 0, 255));
         }
         else {
-            // C1 = std::make_shared<CCollision>();
-            // C2 = std::make_shared<CCollision>();
-            // CR = std::make_shared<CCollision>();
-
             c1.setRadius(radius);
             c1.setOrigin(radius, radius);
             c1.setPosition(p1.x, p1.y);
             c1.setFillColor(sf::Color(0, 0, 0, 255));
-            // C1->boundingBox.setSize(sf::Vector2f());
 
             c2.setRadius(radius);
             c2.setOrigin(radius, radius);
@@ -68,10 +63,6 @@ struct Bone {
 };
 
 
-enum STICKPARTS {
-    WAIST, BACK, RIGHT_ARM, LEFT_ARM, RIGHT_HAND, LEFT_HAND, RIGHT_LEG, LEFT_LEG, RIGHT_FOOT, LEFT_FOOT, NECK, HEAD
-};
-
 class CTransform {
 public:
 	sf::Vector2f pos = {0, 0};
@@ -81,10 +72,6 @@ public:
     CTransform();
     ~CTransform();
     void move();
-};
-
-enum Animations {
-    STICKMAN_IDLE, STICKMAN_RUN
 };
 
 class CCollision {

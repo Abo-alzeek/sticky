@@ -1,4 +1,4 @@
-LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
+LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network -lcrypto -lssl
 # SANATIZER = -fsanitize=address 
 CPPVERSION = -std=c++17 
 INCLUDE = -IC:\SFML-2.6.1\include
