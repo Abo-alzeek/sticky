@@ -1,6 +1,6 @@
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network -lcrypto -lssl
-# SANATIZER = -fsanitize=address 
-CPPVERSION = -std=c++17 
+SANATIZER = -fsanitize=address 
+CPPVERSION = -std=c++17 ${SANATIZER}
 INCLUDE = -IC:\SFML-2.6.1\include
 
 output: main.o game.o menu.o resources.o button.o engine.o level.o Entity.o EntityManager.o components.o listener.o

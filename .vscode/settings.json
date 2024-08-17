@@ -60,6 +60,8 @@
         "cstring": "cpp",
         "forward_list": "cpp",
         "ranges": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "*.ipp": "cpp",
+        "thread": "cpp"
     }
 }

@@ -1,7 +1,9 @@
 #include "../include/basic.h"
 
 CTransform::CTransform() {
-    ;
+    this->pos = {0, 0};
+    this->gravity = {0, 0};
+    this->velocity = {0, 0};
 }
 
 CTransform::~CTransform() {
@@ -125,6 +127,7 @@ CState::CState() {
     this->lastFrameState = 0;
     this->toUpdate = INF;
     this->lastState = 0;
+    this->hp = 100;
 }
 
 CState::~CState() {

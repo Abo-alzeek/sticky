@@ -113,6 +113,10 @@ public:
     int toUpdate;
     int lastState;
 
+    int hp;
+    
+    sf::Vector2f position;
+
     const int INF = 2e9;
 
     CState();

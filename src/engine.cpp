@@ -83,6 +83,15 @@ void Engine::spawnStickman(bool input, bool texture, bool collision, bool animat
 Engine::Engine(std::string level_path) {
     this->level = Level(level_path);
 
+    std::fstream f;
+    f.open("something.txt");
+    std::string player;
+    f >> player;
+
+    std::cout << "THE PLAYER IS: " << player << std::endl;
+
+    f.close();
+
     // INITIALIZING MAP LEVEL
     for(int i = 0;i < (int)level.Map.size();i++) {
         for(int j = 0;j < (int)level.Map[i].size();j++) {      
@@ -96,8 +105,15 @@ Engine::Engine(std::string level_path) {
     }
 
     // skeletals creation
-    this->spawnStickman(1, 0, 1, 1, 1, 1, 1, 1, 0);
-    this->spawnStickman(0, 0, 1, 1, 1, 1, 1, 1, 1);
+
+    if(player == "player1") {
+        this->spawnStickman(1, 0, 1, 1, 1, 1, 1, 1, 0);
+        this->spawnStickman(0, 0, 1, 1, 1, 1, 1, 1, 1);
+    }
+    else {
+        this->spawnStickman(0, 0, 1, 1, 1, 1, 1, 1, 0);
+        this->spawnStickman(1, 0, 1, 1, 1, 1, 1, 1, 1);
+    }
 
     std::cout << "EVERY THING IS DONE HERE" << std::endl;
 }
@@ -107,8 +123,8 @@ Engine::~Engine() {
 }
 
 void Engine::run(sf::RenderWindow &window) {
-    // sf::Thread thread(this->listen.Run);
-    // thread.launch();
+    sf::Thread thread(this->listen.Run);
+    thread.launch();
  
     while(running) {
         m_entities.update();
@@ -121,7 +137,7 @@ void Engine::run(sf::RenderWindow &window) {
         m_currentFrame++;
     }
 
-    // thread.terminate();
+    thread.terminate();
 }
 
 void Engine::handleInput(sf::RenderWindow &window) {
@@ -233,14 +249,18 @@ void Engine::handleInput(sf::RenderWindow &window) {
 }
 
 void Engine::update() {
+
+
     // preUpdate
     for(auto e : m_entities.getEntities()) {
-        // if(e->tag() == skeletalTag && e->cInput == NULL) {
-        //     CState tempState = this->listen.get_state();
-        //     e->cState->state = tempState.state;
-        //     e->cState->lastFrameState = tempState.lastFrameState;
-        //     e->cState->toUpdate = tempState.toUpdate;
-        // }
+        if(e->tag() == skeletalTag && e->cInput == NULL && e->cState->state != Animations::STICKMAN_DIE) {
+            CState tempState = this->listen.get_state();
+            e->cState->state = tempState.state;
+            // e->cState->lastFrameState = tempState.lastFrameState;
+            e->cTransform->pos = tempState.position;
+            e->cState->toUpdate = tempState.toUpdate;
+            e->cHealth->HP = tempState.hp;
+        }
         
         if(e->cState != NULL && e->cState->toUpdate != e->cState->INF) e->cState->update();
     }
@@ -306,7 +326,9 @@ void Engine::update() {
         if(e->cState != NULL) {
             e->cState->lastFrameState = e->cState->state;
             if(e->cInput != NULL) {
-                this->listen.set_state(*e->cState);
+                e->cState->position = e->cTransform->pos;
+                e->cState->hp = e->cHealth->HP;
+                this->listen.set_sending_state(*e->cState);
             }
         }
     }
