@@ -217,4 +217,5 @@ void Resources::getAnimations() {
     loadAnimation(animationsDirectory + "bones_stickman_punch.txt", 2);
     loadAnimation(animationsDirectory + "bones_stickman_damage.txt", 3);
     loadAnimation(animationsDirectory + "bones_stickman_dead.txt", 4);
+    loadAnimation(animationsDirectory + "bones_stickman_jump.txt", 5);
 }

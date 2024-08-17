@@ -140,25 +140,32 @@ void Engine::handleInput(sf::RenderWindow &window) {
                         break;
                     case sf::Keyboard::A:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
-                                e->cState->state = -1;
+                            if(e->cInput != NULL && abs(e->cState->state) != Animations::STICKMAN_DAMAGE && abs(e->cState->state) != Animations::STICKMAN_DIE) {
+                                e->cState->toUpdate = -1 * Animations::STICKMAN_RUN;
                                 break;
                             }
                         }
                         break;
                     case sf::Keyboard::D:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
-                                e->cState->state = 1;
+                            if(e->cInput != NULL && abs(e->cState->state) != Animations::STICKMAN_DAMAGE && abs(e->cState->state != Animations::STICKMAN_DIE)) {
+                                e->cState->toUpdate = Animations::STICKMAN_RUN;
                                 break;
                             }
                         }
                         break;
                     case sf::Keyboard::F:
                         for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL && abs(e->cState->state) != 3 && abs(e->cState->state != 4)) {
-                                e->cState->state = 2 * e->cAnimation->invert;
+                            if(e->cInput != NULL && abs(e->cState->state) != Animations::STICKMAN_DAMAGE && abs(e->cState->state) != Animations::STICKMAN_DIE) {
+                                e->cState->toUpdate = Animations::STICKMAN_PUNCH * e->cAnimation->invert;
                                 break;
+                            }
+                        }
+                        break;
+                    case sf::Keyboard::Space:
+                        for(auto e : m_entities.getEntities()) {
+                            if(e->cInput != NULL && abs(e->cState->state) != Animations::STICKMAN_DAMAGE && abs(e->cState->state) != Animations::STICKMAN_DIE) {
+                                e->cState->toUpdate = Animations::STICKMAN_JUMP * e->cAnimation->invert;
                             }
                         }
                         break;
@@ -190,12 +197,6 @@ void Engine::handleInput(sf::RenderWindow &window) {
                             }
                         }
                         break;
-                    case sf::Keyboard::Space:
-                        for(auto e : m_entities.getEntities()) {
-                            if(e->cInput != NULL) {
-                                e->cInput->screen = true;
-                            }
-                        }
                     default:
                         break;
                 }
@@ -255,6 +256,7 @@ void Engine::update() {
                 if(e->cState->state == Animations::STICKMAN_IDLE) e->cTransform->velocity.x = 0;
                 else if( abs(e->cState->state) == Animations::STICKMAN_RUN) e->cTransform->velocity.x = in * 7.0;
                 else if( abs(e->cState->state) == Animations::STICKMAN_PUNCH) e->cTransform->velocity.x = 0;
+                else if( abs(e->cState->state) == Animations::STICKMAN_JUMP) e->cTransform->velocity.y = -18;
                 else e->cTransform->velocity.x = 0;
 
                 e->cAnimation->setAnimation(this->m_resources.animations[abs(e->cState->state)], (e->cState->state / (abs(e->cState->state) + (e->cState->state == Animations::STICKMAN_IDLE))) - (e->cAnimation->invert / abs(e->cAnimation->invert)) * (e->cState->state != Animations::STICKMAN_IDLE));
@@ -347,6 +349,10 @@ void Engine::checkCollisions(sf::RenderWindow &window) {
                 stickman->cTransform->gravity = {0, 0};
                 stickman->cTransform->velocity.y = 0;
                 isCollision = true;
+
+                if( abs(stickman->cState->state) == Animations::STICKMAN_JUMP) {
+                    stickman->cState->toUpdate = Animations::STICKMAN_IDLE * stickman->cAnimation->invert;
+                }
             }
 
             if( (int)feetCollided + (int)headCollided + (int)bodyCollided > 1 ) {
@@ -358,12 +364,12 @@ void Engine::checkCollisions(sf::RenderWindow &window) {
         if(!isCollision) stickman->cTransform->gravity = {0, 1};
     }
 
-    // collision between two characters al least one of them is hitting 
+    // collision between two characters at least one of them is hitting 
     for(auto stickman1 : m_entities.getEntities(skeletalTag)) {
         for(auto stickman2 : m_entities.getEntities(skeletalTag)) {
             if(stickman1->id() == stickman2->id()) continue;
 
-            if(abs(stickman1->cState->state) == 2 && abs(stickman2->cState->state) != 3) {
+            if(abs(stickman1->cState->state) == Animations::STICKMAN_PUNCH && abs(stickman2->cState->state) != Animations::STICKMAN_DAMAGE && abs(stickman2->cState->state) != Animations::STICKMAN_DIE) {
                 for(int i = 0;i < 3;i++) {
                     if(checkPointRectangleCollision(stickman2->cCollision[i]->boundingBox, stickman1->cBones->bones[STICKPARTS::RIGHT_HAND].p2)) {
                         stickman2->cState->toUpdate = -1 * Animations::STICKMAN_DAMAGE * stickman1->cAnimation->invert;
@@ -401,17 +407,17 @@ void Engine::render(sf::RenderWindow &window) {
         window.draw(e->cTextrue->sprite);
     }
 
-    // for(auto tiles: m_entities.getEntities(tileTag)) {
-    //     tiles->cCollision[0]->boundingBox.setOutlineThickness(2);
-    //     tiles->cCollision[0]->boundingBox.setOutlineColor(sf::Color::Red);
-    //     tiles->cCollision[0]->boundingBox.setFillColor(sf::Color(255, 0, 0, 0));
-    //     window.draw(tiles->cCollision[0]->boundingBox);
-    // }
-    // for(auto &e : m_entities.getEntities()) {
-    //     for(auto colissionBox: e->cCollision) {
-    //         window.draw(colissionBox->boundingBox);
-    //     }
-    // }
+    for(auto tiles: m_entities.getEntities(tileTag)) {
+        tiles->cCollision[0]->boundingBox.setOutlineThickness(2);
+        tiles->cCollision[0]->boundingBox.setOutlineColor(sf::Color::Red);
+        tiles->cCollision[0]->boundingBox.setFillColor(sf::Color(255, 0, 0, 0));
+        window.draw(tiles->cCollision[0]->boundingBox);
+    }
+    for(auto &e : m_entities.getEntities()) {
+        for(auto colissionBox: e->cCollision) {
+            window.draw(colissionBox->boundingBox);
+        }
+    }
 
     for(auto e : m_entities.getEntities(stickmanTag)) {
         window.draw(e->cTextrue->sprite);
