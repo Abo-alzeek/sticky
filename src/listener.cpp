@@ -11,67 +11,6 @@ void wait_a_bit() {
 #endif
 }
 
-void on_open(websocketpp::connection_hdl hdl, client* c, Listener* listener) {
-    std::cout << "WebSocket connection opened!" << std::endl;
-     websocketpp::lib::error_code ec;
-    client::connection_ptr con = c->get_con_from_hdl(hdl, ec);
- 
-    if (ec) {
-        std::cout << "Failed to get connection pointer: " << ec.message() << std::endl;
-        return;
-    }
-        std::cout << "YAY\n";
-        std::fstream f;
-        f.open("something.txt");
-        std::string player_id;
-        f >> player_id;
-
-        std::cout << "THE READ PLAYER ID IS: " << player_id << "\n";
-
-        f.close();
-        while (1) {
-            try {
-                json payload = {
-                    {"type", "state"}, {"data",{
-                        player_id, {
-                            {"state", listener->get_snd_state().state},
-                            {"lastFrameState", listener->get_snd_state().lastFrameState},
-                            {"toUpdate", listener->get_snd_state().toUpdate}
-                        }
-                    }}
-                };
-                // websocketpp::lib::error_code ec;
-                // client::connection_ptr con = c.get_connection(uri, ec);
-                c->send(hdl, payload.dump(), websocketpp::frame::opcode::text,ec);
-
-                if (ec) {
-                    std::cout << "> Error sending message: " << ec.message() << std::endl;
-                }
-                else std::cout << "SENT: " << payload.dump() << '\n';
-            } 
-            catch (websocketpp::exception const & e) {
-                std::cout << "WebSocket Exception: " << e.what() << std::endl;
-            }
-        }
-
-    //c->send(con, payload, websocketpp::frame::opcode::text);
-}
-
-void on_message(websocketpp::connection_hdl, client::message_ptr msg) {
-    std::cout << "Received message: " << msg->get_payload() << std::endl;
-}
-
-void on_fail(websocketpp::connection_hdl hdl) {
-    std::cout << "WebSocket connection failed!" << std::endl;
-}
-
-void on_close(websocketpp::connection_hdl hdl) {
-    std::cout << "WebSocket connection closed!" << std::endl;
-}
-
-
-
-
 std::string toString(int x) {
     std::string ret = "";
 
@@ -85,6 +24,7 @@ std::string toString(int x) {
 }
 
 Listener::Listener(): m_open(false),m_done(false) {
+    this->connected = 1;
     std::fstream f;
     f.open("something.txt");
     f >> this->player_id;
@@ -223,6 +163,7 @@ void Listener::loop() {
 
         wait_a_bit();
     }
+    this->connected = 0;
 }
 
 void Listener::on_message(websocketpp::connection_hdl hdl, message_ptr msg) {

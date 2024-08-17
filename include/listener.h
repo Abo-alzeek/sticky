@@ -16,7 +16,8 @@ public:
     void set_sending_state(CState &);
     CState get_state();
     CState get_snd_state();
-    
+
+    bool connected;
 
     void loop();
     void on_open(websocketpp::connection_hdl);

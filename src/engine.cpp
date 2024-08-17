@@ -135,6 +135,13 @@ void Engine::run(sf::RenderWindow &window) {
         render(window);
 
         m_currentFrame++;
+
+        if (this->listen.connected) {
+            thread.terminate();
+            thread = sf::Thread(this->listen.Run);
+            thread.launch();
+        }
+
     }
 
     thread.terminate();
