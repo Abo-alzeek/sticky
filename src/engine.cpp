@@ -139,6 +139,7 @@ void Engine::run(sf::RenderWindow &window) {
         if (this->listen.connected == 0) {
             //thread.terminate();
             //thread = sf::Thread(this->listen.Run);
+            this->listen.connected = 1;
             thread.launch();
         }
 
