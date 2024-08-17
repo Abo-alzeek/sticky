@@ -130,8 +130,6 @@ MainMenu::~MainMenu()
 	// }
 }
 
-//---------------------------------------------------------------------------------------
-
 void MainMenu::run(sf::RenderWindow & whichWindow)
 {
 	// std::cout << "RUNNING MAINMENU...." << std::endl;
@@ -216,8 +214,6 @@ void MainMenu::run(sf::RenderWindow & whichWindow)
 	}
 }
 
-//---------------------------------------------------------------------------------------
-
 void MainMenu::draw(sf::RenderWindow & whichWindow)
 {
 	whichWindow.draw(backgroundS);
@@ -235,21 +231,15 @@ Options::Options()
 	;
 }
 
-//---------------------------------------------------------------------------------------
-
 Options::~Options()
 {
 	;
 }
 
-//---------------------------------------------------------------------------------------
-
 void Options::run(sf::RenderWindow & whichWindow)
 {
 
 }
-
-//---------------------------------------------------------------------------------------
 
 void Options::draw(sf::RenderWindow & whichWindow)
 {
@@ -260,7 +250,7 @@ void Options::draw(sf::RenderWindow & whichWindow)
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-Create::Create() {
+Lobby::Lobby() {
 	this->chosenLevel = -1;
 
 	std::string current_directory = std::filesystem::current_path().string();
@@ -307,15 +297,11 @@ Create::Create() {
 	menuState = HOST;
 }
 
-//---------------------------------------------------------------------------------------
-
-Create::~Create() {
-
+Lobby::~Lobby() {
+	;
 }
 
-//---------------------------------------------------------------------------------------
-
-void Create::run(sf::RenderWindow &whichWindow) {
+void Lobby::run(sf::RenderWindow &whichWindow) {
 	while (whichWindow.isOpen() && this->getMenuState() == HOST)
 	{
 		sf::Event event;
@@ -413,21 +399,15 @@ void Create::run(sf::RenderWindow &whichWindow) {
 	}
 }
 
-//---------------------------------------------------------------------------------------
-
-void Create::showNextLevel() {
+void Lobby::showNextLevel() {
 	this->levelsIdx = (levelsIdx + 1) % (int)levels.size();
 }
 
-//---------------------------------------------------------------------------------------
-
-void Create::showPrevLevel() {
+void Lobby::showPrevLevel() {
 	this->levelsIdx = (levelsIdx - 1 + (int)levels.size()) % (int)levels.size();
 }
 
-//---------------------------------------------------------------------------------------
-
-void Create::draw(sf::RenderWindow &whichWindow) {
+void Lobby::draw(sf::RenderWindow &whichWindow) {
 	whichWindow.draw(backgroundS);
 
 	for (int i = 0; i < HOST_MENU_BUTTONS_QUANTITY; ++i)
@@ -439,3 +419,126 @@ void Create::draw(sf::RenderWindow &whichWindow) {
 }
 
 //---------------------------------------------------------------------------------------
+
+Create::Create() {
+	for (int i = 0; i < 3; ++i)
+	{
+		std::shared_ptr<Button> tmp = std::make_shared<Button>();
+		tmp->setFont(Menu::font);
+		tmp->setColor(sf::Color::White);
+		tmp->setSize(100);
+
+		if(i ==  0) {
+			tmp->setName("CREATE");
+			tmp->setPos(sf::Vector2f(WIDTH / 2.0 - tmp->getText().getGlobalBounds().width - 10, HEIGHT / 2));
+		}
+		else if(i ==  1) {
+			tmp->setName("JOIN");
+			tmp->setPos(sf::Vector2f(WIDTH / 2.0 + 10, HEIGHT / 2));
+		}
+		else if(i ==  2) {
+			tmp->setName("BACK");
+			tmp->setPos(sf::Vector2f(WIDTH - tmp->getText().getGlobalBounds().width / 2.0, HEIGHT / 2 + tmp->getText().getGlobalBounds().height + 10));
+		}
+
+		buttons.push_back(tmp);
+	}
+
+	buttons[0]->setColor(sf::Color::Red);
+	backgroundT.loadFromFile(Resources::getMenuBackgroundTexture()); // "Grafiki/map_01.png"
+	backgroundS.setTexture(backgroundT);
+	backgroundS.setScale(1, 1);
+	menuState = MAIN_MENU;
+
+}
+
+Create::~Create() {
+	;
+}
+
+void Create::run(sf::RenderWindow &window) {
+	while (window.isOpen() && this->getMenuState() == CREATE)
+	{
+		sf::Event event;
+
+		while (window.pollEvent(event))
+		{
+			switch (event.type)	
+			{
+			case sf::Event::Closed:
+			{
+				window.close();
+				break;
+			}
+			case sf::Event::KeyPressed:
+			{
+				switch (event.key.code)
+				{
+				case sf::Keyboard::W:
+				case sf::Keyboard::Up:
+				{
+					// this->moveUp();
+					break;
+				}
+				case sf::Keyboard::A:
+				case sf::Keyboard::Left:
+				{
+					this->moveUp();
+					break;
+				}
+				case sf::Keyboard::S:
+				case sf::Keyboard::Down:
+				{
+					// this->moveDown(MAIN_MENU_BUTTONS_QUANTITY);
+					break;
+				}
+				case sf::Keyboard::D:
+				case sf::Keyboard::Right:
+				{
+					this->moveDown(3);
+					break;
+				}
+				case sf::Keyboard::Return:
+				{
+					switch (this->getButtonId())
+					{
+					case 0: { 
+						std::cout << "Play button has been pressed!" << std::endl; 
+						this->setMenuState(MenuState::HOST);
+						return; 
+					} // menuState = PLAY; 
+					case 1: { 
+						std::cout << "JOIN button has been pressed!" << std::endl; 
+						break; 
+					} // menuState = OPTIONS;
+					case 2: { 
+						std::cout << "Exit button has been pressed!" << std::endl;
+						this->setMenuState(MenuState::MAIN_MENU); 
+						return; 
+					} // menuState = END;
+					default: break;
+					}
+					break;
+				}
+				case sf::Keyboard::Escape: { 
+					std::cout << "Escape has been pressed!" << std::endl; 
+					return; 
+					break; 
+				}
+				default: { std::cout << "Unknown key!" << std::endl; break; }
+				}
+			default:
+				break;
+			}
+			}
+		}
+
+		window.clear();
+		this->draw(window);
+		window.display();
+	}
+}
+
+void Create::draw(sf::RenderWindow &window) {
+	;
+}

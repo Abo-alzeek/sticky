@@ -2,14 +2,6 @@
 #define RESOURCES_H_
 #include <string>
 
-enum textures {
-    NOTHING = 0, GRAVEL = 1, WATER_SURFACE, DEEP_WATER, BRICK_WALL, STONE_WALL, BOX, SPAWNING_POINT, GRASS, DIRT, STICK_BODY, STICK_PART
-};
-
-enum Backgrounds {
-    BLUESTANDARD, MOONLIGHT, WHITECLOUDYSKY1, WHITECLOUDYSKY2
-};
-
 struct anime {
     int framesCount;
     float frameTL;

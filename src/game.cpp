@@ -1,7 +1,7 @@
 #include "../include/game.h"
 
 //---------------------------------------------------------------------------------------
-// sf::RenderWindow Game::getWindow();
+
 Game::Game()
 {
 	window.create(sf::VideoMode(WIDTH, HEIGHT), "Stickman Game", sf::Style::Close | sf::Style::Fullscreen);
@@ -11,35 +11,25 @@ Game::Game()
 	state = GameState::MENU;
 }
 
-//---------------------------------------------------------------------------------------
-
 Game::~Game()
 {
 	std::cout << "End of Game, thanks for playing!" << std::endl;
 }
-
-//---------------------------------------------------------------------------------------
 
 sf::RenderWindow & Game::getWindow()
 {
 	return this->window;
 }
 
-//---------------------------------------------------------------------------------------
-
 GameState Game::getState()
 {
 	return state;
 }
 
-//---------------------------------------------------------------------------------------
-
 void Game::setState(GameState state_)
 {
 	this->state = state_;
 }
-
-//---------------------------------------------------------------------------------------
 
 void Game::run()
 {
@@ -66,10 +56,17 @@ void Game::run()
 						menu_ptr->run(Game::getWindow());
 						break;
 					}
+					// case MenuState::CREATE:
+					// 	std::shared_ptr<Create> smth = std::make_shared<Create>();
+					// 	menu_ptr = smth;
+					// 	menu_ptr->setMenuState(MenuState::CREATE);
+					// 	menu_ptr->run(Game::getWindow());
+
+					// 	break;
 					case MenuState::HOST:
 					{
-						std::shared_ptr<Create> create = std::make_shared<Create>();
-						menu_ptr = create;
+						std::shared_ptr<Lobby> lobby = std::make_shared<Lobby>();
+						menu_ptr = lobby;
 						menu_ptr->setMenuState(MenuState::HOST);
 						menu_ptr->run(Game::getWindow());
 
@@ -78,6 +75,7 @@ void Game::run()
 							this->state = GameState::GAME;
 							menu_ptr->setMenuState(MenuState::OUT);
 						}
+						break;
 					}
 					case MenuState::OPTIONS:
 					{
@@ -130,8 +128,6 @@ void Game::run()
 		}
 	}
 }
-
-//---------------------------------------------------------------------------------------
 
 void Game::updateScore(int points_, float time_)
 {
