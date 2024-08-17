@@ -140,8 +140,8 @@ void Engine::run(sf::RenderWindow &window) {
             //thread.terminate();
             //thread = sf::Thread(this->listen.Run);
             this->listen.connected = 1;
-            this->m_open = 0;
-            this->m_done = 0;
+            this->listen.m_open = 0;
+            this-listen.m_done = 0;
             thread.launch();
         }
 
