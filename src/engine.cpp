@@ -136,9 +136,9 @@ void Engine::run(sf::RenderWindow &window) {
 
         m_currentFrame++;
 
-        if (this->listen.connected) {
-            thread.terminate();
-            thread = sf::Thread(this->listen.Run);
+        if (this->listen.connected == 0) {
+            //thread.terminate();
+            //thread = sf::Thread(this->listen.Run);
             thread.launch();
         }
 
